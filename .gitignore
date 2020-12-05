@@ -178,7 +178,6 @@ celerybeat-schedule
 # virtualenv
 venv/
 ENV/
-
 # Spyder project settings
 .spyderproject
 
@@ -186,3 +185,13 @@ ENV/
 .ropeproject
 *.npy
 *.pkl
+
+# ========================================= Conan ======================================
+conan.lock
+conanbuildinfo.cmake
+conanbuildinginfo.txt
+conaninfo.txt
+graph_info.json
+
+# ======================================= STB LIBRARY ===================================
+stb/*
