@@ -1,0 +1,9 @@
+[requires]
+pybind11/2.2.4@conan/stable
+morphotree/0.0.1@dennisjosesilva/dev
+
+[generators]
+cmake
+
+[options]
+morphotree:shared=True
