@@ -69,7 +69,7 @@ py::array MorphologicalTreeReconstructNodeAsImage(mt::MorphologicalTree<T> *tree
 {
   std::vector<bool> rec = tree->reconstructNode(nodeId, domain);
   py::array recnp = py::cast(rec);
-  recnp.resize({domain.width(), domain.height()});
+  recnp.resize({domain.height(), domain.width()});
   return recnp;
 }
 
@@ -79,7 +79,7 @@ py::array MorphologicalTreeReconstructImage(mt::MorphologicalTree<T> *tree,
 {
   std::vector<T> rec = tree->reconstructImage();
   py::array recnp = py::cast(rec);
-  recnp.resize({domain.width(), domain.height()});
+  recnp.resize({domain.height(), domain.width()});
   return recnp;
 }
 
