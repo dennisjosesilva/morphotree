@@ -29,6 +29,7 @@ namespace morphotree
   template<typename T>
   std::vector<uint32> sortDecreasing(const std::vector<T> &v);
 
+
   // ===========[ IMPLEMENTATION ] ============================================
   template<typename T>
   bool isLowSizeType() 
