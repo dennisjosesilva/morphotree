@@ -195,13 +195,22 @@ using tree_t = MorphologicalTree<uint8>;
 
 int main(int argc, char *argv[]) 
 {
-  std::vector<uint8> f = {
-    4, 4, 4, 4, 4, 4,
-    4, 7, 7, 0, 0, 4,
-    4, 7, 4, 4, 0, 4,
-    4, 7, 4, 4, 0, 4,
-    4, 7, 7, 0, 0, 4,
-    4, 4, 4, 4, 4, 4
+  // std::vector<uint8> f = {
+  //   4, 4, 4, 4, 4, 4,
+  //   4, 7, 7, 0, 0, 4,
+  //   4, 7, 4, 4, 0, 4,
+  //   4, 7, 4, 4, 0, 4,
+  //   4, 7, 7, 0, 0, 4,
+  //   4, 4, 4, 4, 4, 4
+  // };
+
+    std::vector<uint8> f = {
+      4, 4, 4, 4, 4, 4,
+      4, 4, 4, 4, 4, 4,
+      4, 4, 0, 7, 4, 4,
+      4, 4, 7, 0, 4, 4,
+      4, 4, 4, 4, 4, 4,
+      4, 4, 4, 4, 4, 4
   };
 
   Box domain = Box::fromSize(UI32Point{6, 6});
@@ -212,11 +221,13 @@ int main(int argc, char *argv[])
 
   Box gdomain = grid.immerseDomain();
   
-  for (uint32 y = gdomain.top(); y <= gdomain.bottom(); y++) {
-    for (uint32 x = gdomain.left(); x <= gdomain.right(); x++) {
-      KGridType::IntervalType i = grid.interval(x, y);
-      std::cout << "[" << (int)i.min() << ", " << (int)i.max() << "], ";
-    }
-    std::cout << "\n";
-  }
+  std::cout << grid;
+
+  // for (uint32 y = gdomain.top(); y <= gdomain.bottom(); y++) {
+  //   for (uint32 x = gdomain.left(); x <= gdomain.right(); x++) {
+  //     KGridType::IntervalType i = grid.interval(x, y);
+  //     std::cout << "[" << (int)i.min() << ", " << (int)i.max() << "], ";
+  //   }
+  //   std::cout << "\n";
+  // }
 }

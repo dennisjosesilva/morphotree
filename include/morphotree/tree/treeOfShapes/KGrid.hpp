@@ -4,6 +4,7 @@
 #include "morphotree/core/box.hpp"
 #include "morphotree/adjacency/adjacencyuc.hpp"
 
+#include <ostream>
 #include <memory>
 #include <vector>
 #include <array>
@@ -35,6 +36,9 @@ namespace morphotree
   };
 
   template<class ValueType>
+  std::ostream& operator<<(std::ostream &out, const Interval<ValueType> &intvl);
+
+  template<class ValueType>
   class KGrid
   {
   public:
@@ -43,7 +47,6 @@ namespace morphotree
 
     KGrid();
     KGrid(const Box &imgDomain, const std::vector<ValueType> &data);
-
   
     IntervalType& interval(uint32 idx) { return data_[idx]; }
     IntervalType  interval(uint32 idx) const { return data_[idx]; }
@@ -62,7 +65,8 @@ namespace morphotree
     I32Point immersePoint(const I32Point &p) const;
     Box immerseDomain() const;
 
-
+    inline std::shared_ptr<AdjacencyUC> adj() { return adjU_; }
+    inline const std::shared_ptr<AdjacencyUC> adj() const { return adjU_; }
   private: 
     void computeGrid(const Box &imgDomain, const std::vector<ValueType> &data);
     IntervalType computeZeroFace(const I32Point &p, Type v0, Type v1, Type V2, Type v3) const;
@@ -75,6 +79,8 @@ namespace morphotree
     std::shared_ptr<AdjacencyUC> adjU_; 
   };
 
+  template<class ValueType>
+  std::ostream& operator<<(std::ostream& out, const KGrid<ValueType> &grid);
 
   // ============== IMPLEMENTATION ===============================================================================
   // ============== INTERVAL =====================================================================================
@@ -103,6 +109,13 @@ namespace morphotree
     }
 
     return Interval<ValueType>{min, max};
+  }
+
+  template<class ValueType>
+  std::ostream& operator<<(std::ostream &out, const Interval<ValueType> &intvl)
+  {
+    out << "[" << (int)intvl.min() << ", " << (int)intvl.max() << "]";
+    return out;
   }
 
   // ============= KGrid =========================================================================================
@@ -254,5 +267,40 @@ namespace morphotree
   Box KGrid<ValueType>::immerseDomain() const
   {
     return domain_;
+  }
+
+  template<class ValueType>
+  std::ostream& operator<<(std::ostream& out, const KGrid<ValueType> &grid)
+  {
+    Box domain = grid.immerseDomain();
+    std::shared_ptr<AdjacencyUC> adj = grid.adj();
+
+    for (uint32 y = domain.top(); y < domain.bottom(); ++y) {
+      for (uint32 x = domain.left(); x < domain.right(); ++x) {
+        out << grid.interval(x, y) << " - ";
+      }
+      out << grid.interval(domain.left(), y) << "\n";
+      
+      for (uint32 x = domain.left(); x < domain.right(); ++x) {
+        uint32 idx = domain.pointToIndex(x, y);
+        uint32 idxNext = domain.pointToIndex(x+1,y);
+        out << "   |  ";
+
+        if (adj->dconn(idx) & DiagonalConnection::SE)
+          out << " \\ ";
+        else if (adj->dconn(idxNext) & DiagonalConnection::SW)
+          out << " / ";
+        else
+          out << "   ";
+      }
+      out << "   |  ";
+      out << "\n";
+    }
+    
+    for (uint32 x = domain.left(); x < domain.right(); ++x) {
+      out << grid.interval(x, domain.bottom()) << " - ";
+    }
+    out << grid.interval(domain.right(), domain.bottom()) << "\n";
+    return out;
   }
 }
