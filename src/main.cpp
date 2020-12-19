@@ -10,6 +10,8 @@
 
 #include "morphotree/core/io.hpp"
 
+#include "morphotree/tree/treeOfShapes/KGrid.hpp"
+
 #include <iostream>
 #include <memory>
 
@@ -29,40 +31,40 @@ using namespace morphotree;
 
 using tree_t = MorphologicalTree<uint8>;
 
-int main(int argc, char *argv[])
-{
-  // read image 
-  int width, height, nchannels;
-  uint8 *data = stbi_load("../image/noisy-apple.png", &width, &height, &nchannels, 1);
+// int main(int argc, char *argv[])
+// {
+//   // read image 
+//   int width, height, nchannels;
+//   uint8 *data = stbi_load("../image/noisy-apple.png", &width, &height, &nchannels, 1);
 
-  std::vector<uint8> f(data, data + (width*height));
-  Box domain = Box::fromSize(UI32Point{width, height});
-  std::shared_ptr<Adjacency> adj = std::make_shared<Adjacency8C>(domain);
+//   std::vector<uint8> f(data, data + (width*height));
+//   Box domain = Box::fromSize(UI32Point{width, height});
+//   std::shared_ptr<Adjacency> adj = std::make_shared<Adjacency8C>(domain);
 
-  tree_t tree = buildMinTree(f, adj);
+//   tree_t tree = buildMinTree(f, adj);
 
-  std::vector<uint32> area(tree.numberOfNodes(), 0);
+//   std::vector<uint32> area(tree.numberOfNodes(), 0);
 
-  tree.tranverse([&area](tree_t::NodePtr node){
-    area[node->id()] += node->cnps().size();
-    if (node->parent() != nullptr) {
-      area[node->parent()->id()] += area[node->id()];
-    }
-  });
+//   tree.tranverse([&area](tree_t::NodePtr node){
+//     area[node->id()] += node->cnps().size();
+//     if (node->parent() != nullptr) {
+//       area[node->parent()->id()] += area[node->id()];
+//     }
+//   });
 
   
-  tree_t filtered_tree = tree.directFilter([&area](tree_t::NodePtr node){
-    return area[node->id()] > 50;
-  });
+//   tree_t filtered_tree = tree.directFilter([&area](tree_t::NodePtr node){
+//     return area[node->id()] > 50;
+//   });
 
-  std::vector<uint8> filtered_image = filtered_tree.reconstructImage();
-  stbi_write_png("../image/output.png", domain.width(), domain.height(), 1, (void*)filtered_image.data(), 0);
-  stbi_image_free(data);
+//   std::vector<uint8> filtered_image = filtered_tree.reconstructImage();
+//   stbi_write_png("../image/output.png", domain.width(), domain.height(), 1, (void*)filtered_image.data(), 0);
+//   stbi_image_free(data);
 
-  std::cout << "=========== DONE ================\n";
+//   std::cout << "=========== DONE ================\n";
 
-  return 0;
-}
+//   return 0;
+// }
 
 // int main(int argc, char *argv[])
 // {
@@ -189,3 +191,32 @@ int main(int argc, char *argv[])
 
 //   return 0;
 // }
+
+
+int main(int argc, char *argv[]) 
+{
+  std::vector<uint8> f = {
+    4, 4, 4, 4, 4, 4,
+    4, 7, 7, 0, 0, 4,
+    4, 7, 4, 4, 0, 4,
+    4, 7, 4, 4, 0, 4,
+    4, 7, 7, 0, 0, 4,
+    4, 4, 4, 4, 4, 4
+  };
+
+  Box domain = Box::fromSize(UI32Point{6, 6});
+
+  using KGridType = KGrid<uint8>; 
+
+  KGridType grid{domain, f};
+
+  Box gdomain = grid.immerseDomain();
+  
+  for (uint32 y = gdomain.top(); y <= gdomain.bottom(); y++) {
+    for (uint32 x = gdomain.left(); x <= gdomain.right(); x++) {
+      KGridType::IntervalType i = grid.interval(x, y);
+      std::cout << "[" << (int)i.min() << ", " << (int)i.max() << "], ";
+    }
+    std::cout << "\n";
+  }
+}

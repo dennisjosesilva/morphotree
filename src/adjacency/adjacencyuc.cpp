@@ -4,7 +4,7 @@ namespace morphotree
 {
   AdjacencyUC::AdjacencyUC(Box imgdomain)
     :domain_{imgdomain},
-     offset_{I32Point{-1,0}, I32Point{0,-1}, I32Point{1,0}, I32Point{}}
+     offset_{I32Point{-1,0}, I32Point{0,-1}, I32Point{1,0}, I32Point{0, 1}}
   {
     dconn_.resize(domain_.numberOfPoints(), DiagonalConnection::None);
   }
@@ -21,22 +21,23 @@ namespace morphotree
         n.push_back(domain_.pointToIndex(p + q));
     }
 
-    if (dconn_[v] & DiagonalConnection::NE) {
+    DiagonalConnection curDconn = dconn_[v];
+    if ((curDconn & DiagonalConnection::NE)) {
       I32Point r = p + I32Point{1, -1};
       if (domain_.contains(r)) 
         n.push_back(domain_.pointToIndex(r));
     }
-    if (dconn_[v] & DiagonalConnection::NW) {
+    if ((curDconn & DiagonalConnection::NW)) {
       I32Point r = p + I32Point{-1, -1};
       if (domain_.contains(r))
         n.push_back(domain_.pointToIndex(r));
     }
-    if (dconn_[v] & DiagonalConnection::SW) {
+    if ((curDconn & DiagonalConnection::SW)) {
       I32Point r = p + I32Point{-1, +1};
       if (domain_.contains(r))
         n.push_back(domain_.pointToIndex(r));
     }
-    if (dconn_[v] & DiagonalConnection::SE) {
+    if ((curDconn & DiagonalConnection::SE)) {
       I32Point r = p + I32Point{ +1, +1};
       if (domain_.contains(r)) 
         n.push_back(domain_.pointToIndex(r));

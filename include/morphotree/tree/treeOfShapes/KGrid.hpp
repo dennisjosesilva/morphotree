@@ -14,7 +14,7 @@ namespace morphotree
   class Interval
   {
   public:
-    using Type = typename ValueType; 
+    using Type = ValueType; 
 
     Interval(ValueType min, ValueType max);
 
@@ -25,6 +25,10 @@ namespace morphotree
     inline ValueType& min() { return min_; }
     inline void min(ValueType val) { min_ = min; }
 
+    inline ValueType  max() const { return max_; }
+    inline ValueType& max() { return max_; }
+    inline void max(ValueType val) { max_ = val; }
+
   private:
     ValueType min_;
     ValueType max_;
@@ -34,8 +38,8 @@ namespace morphotree
   class KGrid
   {
   public:
-    using IntervalType = typename Interval<ValueType>;
-    using Type = typename ValueType;
+    using IntervalType = Interval<ValueType>;
+    using Type =  ValueType;
 
     KGrid();
     KGrid(const Box &imgDomain, const std::vector<ValueType> &data);
@@ -119,12 +123,13 @@ namespace morphotree
   {
     domain_ = Box::fromSize(imgDomain.topleft(), 
       UI32Point{2*imgDomain.width()-1, 2*imgDomain.height()-1});
+    data_.resize(domain_.numberOfPoints(), IntervalType{0,0});
 
     adjU_ = std::make_shared<AdjacencyUC>(domain_);
 
     // Compute interval from 2-faces.
     I32Point p = domain_.topleft();
-    for (; p.y() <= domain_.bottom(), p.y() += 2)
+    for (; p.y() <= domain_.bottom(); p.y() += 2)
     {
       for (p.x(domain_.left()) ; p.x() <= domain_.right(); p.x() += 2) {
         I32Point q = emergePoint(p);
@@ -134,9 +139,9 @@ namespace morphotree
     }
 
     // Compute interval horizontally for 1-faces
-    I32Point p = domain_.topleft();
+    p = domain_.topleft();
     for (; p.y() <= domain_.bottom(); p.y() += 2) {
-      for (p.x(domain_.x()+1); p.x() <= domain_.right(); p.x() += 2) {
+      for (p.x(domain_.left()+1); p.x() <= domain_.right(); p.x() += 2) {
         I32Point q1 = emergePoint(p + I32Point{-1, 0});
         I32Point q2 = emergePoint(p + I32Point{ 1, 0});
         uint32 idx1 = imgDomain.pointToIndex(q1);
@@ -146,10 +151,10 @@ namespace morphotree
     }
 
     // Compute interval vertically for 1-faces.
-    I32Point p = domain_.topleft();
+    p = domain_.topleft();
     p.y()++;
     for (; p.y() <= domain_.bottom(); p.y() += 2) {
-      for (p.x(domain_.x()); p.x() <= domain_.right(); p.x() += 2) {
+      for (p.x(domain_.left()); p.x() <= domain_.right(); p.x() += 2) {
         I32Point q1 = emergePoint(p + I32Point{ 0,-1});
         I32Point q2 = emergePoint(p + I32Point{ 0, 1});
         uint32 idx1 = imgDomain.pointToIndex(q1);
@@ -159,10 +164,10 @@ namespace morphotree
     }
 
     // Compute interval for 0-faces
-    I32Point p = domain_.topleft();
+    p = domain_.topleft();
     p.y()++;
     for (; p.y() <= domain_.bottom(); p.y() += 2) {
-      for (p.x(domain_.x()+1); p.x() <= domain_.right(); p.x() += 2) {
+      for (p.x(domain_.left()+1); p.x() <= domain_.right(); p.x() += 2) {
         I32Point q1 = emergePoint(p + I32Point{-1,-1});
         I32Point q2 = emergePoint(p + I32Point{ 1,-1});
         I32Point q3 = emergePoint(p + I32Point{-1, 1});
@@ -171,15 +176,15 @@ namespace morphotree
         uint32 idx2 = imgDomain.pointToIndex(q2);
         uint32 idx3 = imgDomain.pointToIndex(q3);
         uint32 idx4 = imgDomain.pointToIndex(q4);
-        data_[domain_.pointToIndex(p)] = computeZeroFace(data[idx1],
+        data_[domain_.pointToIndex(p)] = computeZeroFace(p, data[idx1],
           data[idx2], data[idx3], data[idx4]);
       }
     }
   }
 
   template<class ValueType>
-  KGrid<ValueType>::IntervalType 
-    KGrid<ValueType>::computeZeroFace(const I32Point &p, Type v0, Type v1, Type V2, Type v3) const
+  typename KGrid<ValueType>::IntervalType 
+    KGrid<ValueType>::computeZeroFace(const I32Point &p, Type v0, Type v1, Type v2, Type v3) const
   {
     // block:
     // v0  |  v1
@@ -204,6 +209,16 @@ namespace morphotree
     }
     else if (v1v2.min() > v0v3.max()) {
       // TODO: Other critical Configuration.
+      adjU_->dconn(domain_.pointToIndex(p + I32Point{-1, 0}), DiagonalConnection::SE);
+      adjU_->dconn(domain_.pointToIndex(p + I32Point{ 0,+1}), DiagonalConnection::NW);
+
+      adjU_->dconn(domain_.pointToIndex(p + I32Point{-1,-1}), DiagonalConnection::SE);
+      adjU_->dconn(domain_.pointToIndex(p), DiagonalConnection::SE | DiagonalConnection::NW);
+      adjU_->dconn(domain_.pointToIndex(p + I32Point{+1,+1}), DiagonalConnection::NW);
+
+      adjU_->dconn(domain_.pointToIndex(p + I32Point{ 0,-1}), DiagonalConnection::SE);
+      adjU_->dconn(domain_.pointToIndex(p + I32Point{+1, 0}), DiagonalConnection::NW);
+
       return v1v2;
     } 
     else {

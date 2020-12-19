@@ -44,6 +44,10 @@ namespace morphotree
 
 
   // Box
+  Box::Box()
+    :topleft_{I32Point{0,0}}, bottomright_{I32Point{0,0}} 
+  {}
+
   Box::Box(I32Point topleft, I32Point bottomright)
   { 
     if (topleft.x() < bottomright.x() && topleft.y() < bottomright.y()) {

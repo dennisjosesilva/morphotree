@@ -9,21 +9,21 @@ namespace morphotree
 
   enum class DiagonalConnection : int32
   {
-    None = 0,
-    SW = (1 << 0),
-    NE = (1 << 1),
-    SE = (1 << 2),
-    NW = (1 << 3)
+    None = 1,
+    SW = 2,
+    NE = 4,
+    SE = 8,
+    NW = 16
   };
 
-  constexpr DiagonalConnection operator |(DiagonalConnection dconn1, DiagonalConnection dconn2) 
+  constexpr DiagonalConnection operator|(DiagonalConnection dconn1, DiagonalConnection dconn2) 
   {
     return static_cast<DiagonalConnection>(static_cast<int32>(dconn1) | static_cast<int32>(dconn2));
   }
 
-  constexpr DiagonalConnection operator &(DiagonalConnection dconn1, DiagonalConnection dconn2)
+  constexpr bool operator&(DiagonalConnection dconn1, DiagonalConnection dconn2)
   {
-    return static_cast<DiagonalConnection>(static_cast<int32>(dconn1) | static_cast<int32>(dconn2));
+    return static_cast<bool>(static_cast<int32>(dconn1) & static_cast<int32>(dconn2));
   }
 
   class AdjacencyUC : public Adjacency

@@ -44,6 +44,7 @@ namespace morphotree
   class Box
   {
   public:
+    Box();
     Box(I32Point topleft, I32Point bottomright);
 
     static Box fromCorners(I32Point topleft, I32Point bottomright);
