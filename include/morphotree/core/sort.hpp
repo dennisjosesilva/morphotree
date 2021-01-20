@@ -1,6 +1,7 @@
 #pragma once
 
 #include "morphotree/core/alias.hpp"
+#include "morphotree/core/types.hpp"
 
 #include <vector>
 #include <algorithm>
@@ -9,10 +10,6 @@
 
 namespace morphotree
 {
-
-  template<typename T>
-  bool isLowSizeType();
-
   template<typename T>
   std::vector<uint32> STLsortIndex(const std::vector<T> &v, 
     std::function<bool(const T&, const T&)> cmp);
@@ -31,15 +28,6 @@ namespace morphotree
 
 
   // ===========[ IMPLEMENTATION ] ============================================
-  template<typename T>
-  bool isLowSizeType() 
-  {
-    return std::is_same<T, bool>::value || 
-      std::is_same<T, uint8>::value || std::is_same<T, int8>::value ||
-      std::is_same<T, uint16>::value || std::is_same<T, int16>::value ||
-      std::is_same<T, uint32>::value || std::is_same<T, int32>::value;
-  }
-
   template<typename T>
   std::vector<uint32> STLsortIndex(const std::vector<T> &v, 
     std::function<bool(const T&, const T&)> cmp)

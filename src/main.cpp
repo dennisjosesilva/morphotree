@@ -10,7 +10,7 @@
 
 #include "morphotree/core/io.hpp"
 
-#include "morphotree/tree/treeOfShapes/KGrid.hpp"
+#include "morphotree/tree/treeOfShapes/kgrid.hpp"
 
 #include <iostream>
 #include <memory>
@@ -18,6 +18,8 @@
 #include <algorithm>
 #include <numeric>
 #include <iomanip>
+
+#include <map>
 
 using namespace morphotree;
 
@@ -223,11 +225,19 @@ int main(int argc, char *argv[])
   
   std::cout << grid;
 
-  // for (uint32 y = gdomain.top(); y <= gdomain.bottom(); y++) {
-  //   for (uint32 x = gdomain.left(); x <= gdomain.right(); x++) {
-  //     KGridType::IntervalType i = grid.interval(x, y);
-  //     std::cout << "[" << (int)i.min() << ", " << (int)i.max() << "], ";
-  //   }
-  //   std::cout << "\n";
-  // }
+  std::map<int32, char> q;
+  std::map<int32, char>::iterator lower, upper;
+
+  q[0] = 'a';
+  q[1] = 'b';
+  q[2] = 'c';
+
+  q[10] = 'd';
+  q[12] = 'f'; 
+  
+  lower = q.lower_bound(8);
+  upper = q.upper_bound(8);
+
+  std::cout << "lower = (" << lower->first << ", " << lower->second << ")" << std::endl;
+  std::cout << "lower = (" << upper->first << ", " << upper->second << ")" << std::endl;
 }
