@@ -11,6 +11,8 @@
 #include "morphotree/core/io.hpp"
 
 #include "morphotree/tree/treeOfShapes/kgrid.hpp"
+#include "morphotree/core/hqueue.hpp"
+
 
 #include <iostream>
 #include <memory>
@@ -206,38 +208,56 @@ int main(int argc, char *argv[])
   //   4, 4, 4, 4, 4, 4
   // };
 
-    std::vector<uint8> f = {
-      4, 4, 4, 4, 4, 4,
-      4, 4, 4, 4, 4, 4,
-      4, 4, 0, 7, 4, 4,
-      4, 4, 7, 0, 4, 4,
-      4, 4, 4, 4, 4, 4,
-      4, 4, 4, 4, 4, 4
-  };
+  //   std::vector<uint8> f = {
+  //     4, 4, 4, 4, 4, 4,
+  //     4, 4, 4, 4, 4, 4,
+  //     4, 4, 0, 7, 4, 4,
+  //     4, 4, 7, 0, 4, 4,
+  //     4, 4, 4, 4, 4, 4,
+  //     4, 4, 4, 4, 4, 4
+  // };
 
-  Box domain = Box::fromSize(UI32Point{6, 6});
+  // Box domain = Box::fromSize(UI32Point{6, 6});
 
-  using KGridType = KGrid<uint8>; 
+  // using KGridType = KGrid<uint8>; 
 
-  KGridType grid{domain, f};
+  // KGridType grid{domain, f};
 
-  Box gdomain = grid.immerseDomain();
+  // Box gdomain = grid.immerseDomain();
   
-  std::cout << grid;
+  // std::cout << grid;
 
-  std::map<int32, char> q;
-  std::map<int32, char>::iterator lower, upper;
+  // std::map<int32, char> q;
+  // std::map<int32, char>::iterator lower, upper;
 
-  q[0] = 'a';
-  q[1] = 'b';
-  q[2] = 'c';
+  // q[0] = 'a';
+  // q[1] = 'b';
+  // q[2] = 'c';
 
-  q[10] = 'd';
-  q[12] = 'f'; 
+  // q[10] = 'd';
+  // q[12] = 'f'; 
   
-  lower = q.lower_bound(8);
-  upper = q.upper_bound(8);
+  // lower = q.lower_bound(8);
+  // upper = q.upper_bound(8);
 
-  std::cout << "lower = (" << lower->first << ", " << lower->second << ")" << std::endl;
-  std::cout << "lower = (" << upper->first << ", " << upper->second << ")" << std::endl;
+  // std::cout << "lower = (" << lower->first << ", " << lower->second << ")" << std::endl;
+  // std::cout << "lower = (" << upper->first << ", " << upper->second << ")" << std::endl;
+
+
+  HQueue<uint8, int32> hqueue;
+
+  hqueue.insert(5, 0);
+  hqueue.insert(5, 1);
+  hqueue.insert(5, 2);
+  hqueue.insert(5, 3);
+
+  hqueue.insert(2, 3);
+  hqueue.insert(2, 5);
+
+  hqueue.insert(9, 1);
+  hqueue.insert(9, 2);
+
+  std::cout << hqueue.pop(5) << " " << hqueue.pop(3) <<  " " << hqueue.pop(2) << " " << hqueue.pop(2) << std::endl;
+
+  return 0;
 }

@@ -5,6 +5,7 @@
 
 #include <queue>
 #include <vector> 
+#include <array>
 
 namespace morphotree 
 {
@@ -14,9 +15,8 @@ namespace morphotree
   class HQueue
   {
   public:
-    using KeyType = typename Key;
-    using ValueType = typename Value;
-
+    using KeyType = Key;
+    using ValueType = Value;
 
   private:
     class HQNode
@@ -39,19 +39,19 @@ namespace morphotree
 
   private:
     NodeType* find(KeyType k);
-    NodeType* rfind(NodeType *node, KeyType k)
+    NodeType* rfind(NodeType *node, KeyType k);
 
   private:
     NodeType *root_;
   };
 
   // hierarchical queue
-  template<uint8, class Value>
-  class HQueue
+  template<class Value>
+  class HQueue<uint8, Value>
   {
   public:
     using KeyType = uint8;
-    using ValueType = typename Key;
+    using ValueType = Value;
 
     HQueue();
     
@@ -60,8 +60,12 @@ namespace morphotree
     ValueType front(KeyType k) const;
     inline bool isEmpty() const { return numberOfElements == 0; } ;
 
+  private: // methods
+    ValueType popAnElement(KeyType k);
+    bool findClosestNonEmptyQueue(KeyType k, KeyType &foundValue) const;
+
   private:
-    std::vector<std::queue<ValueType>> queues_;
+    std::array<std::queue<ValueType>, 256> queues_;
     uint32 numberOfElements;
   };
 
@@ -82,7 +86,7 @@ namespace morphotree
   }
 
   template<class Key, class Value>
-  HQueue<Key, Value>::ValueType HQueue<Key, Value>::pop(KeyType k)
+  typename HQueue<Key, Value>::ValueType HQueue<Key, Value>::pop(KeyType k)
   {
     NodeType *node = find(k);
     
@@ -97,7 +101,7 @@ namespace morphotree
   }
 
   template<class Key, class Value>
-  HQueue<Key, Value>::ValueType HQueue<Key, Value>::front(KeyType k) const
+  typename HQueue<Key, Value>::ValueType HQueue<Key, Value>::front(KeyType k) const
   {
     NodeType *node = find(k);
     if (node == nullptr)
@@ -107,13 +111,13 @@ namespace morphotree
   }
 
   template<class Key, class Value>
-  HQueue<Key, Value>::NodeType* HQueue<Key, Value>::find(KeyType k)
+  typename HQueue<Key, Value>::NodeType* HQueue<Key, Value>::find(KeyType k)
   {
     return rfind(root_, k);
   }
 
   template<class Key, class Value>
-  HQueue<Key, Value>::NodeType* HQueue<Key, Value>::rfind(NodeType *node, KeyType k)
+  typename HQueue<Key, Value>::NodeType* HQueue<Key, Value>::rfind(NodeType *node, KeyType k)
   {
     if (node == nullptr)
       return nullptr;
@@ -124,4 +128,99 @@ namespace morphotree
     else 
       return node;
   }
+
+  // =====================[ IMPLEMENTATION ] ===========================================
+  // Hierarchical Queue using simple array
+
+  template<class Value>
+  HQueue<uint8, Value>::HQueue()
+    :numberOfElements{0}
+  {}
+    
+  template<class Value>
+  void HQueue<uint8, Value>::insert(KeyType k, ValueType v)
+  {
+    queues_[k].push(v);
+    numberOfElements++;
+  }
+
+  template<class Value>
+  typename HQueue<uint8, Value>::ValueType HQueue<uint8, Value>::pop(KeyType k)
+  {
+    if (!isEmpty()) { 
+      uint8 closestQueue = 0;
+      if (findClosestNonEmptyQueue(k, closestQueue)) {
+        return popAnElement(closestQueue);
+      }
+    }
+    return HQueue<uint8, ValueType>::ValueType();
+  }
+
+  template<class Value>
+  bool HQueue<uint8, Value>::findClosestNonEmptyQueue(KeyType k, KeyType &foundValue) const 
+  {
+    if (!queues_[k].empty()) {
+      foundValue = k;
+      return true;
+    }
+    else {
+      int32 l = k-1;
+      int32 u = k+1;
+
+      while (0 <= l && u < 256) {
+        if (!queues_[l].empty()) {
+          foundValue = l;
+          return true;
+        }
+        if (!queues_[u].empty()) {
+          foundValue = u;
+          return true;
+        }
+        u++;
+        l--;
+      }
+
+      while (0 <= l)
+      {
+        if (!queues_[l].empty()) {
+          foundValue = l;
+          return true;
+        }
+        l--;
+      }
+      
+      while (u < 256)
+      {
+        if (!queues_[u].empty()){
+          foundValue = u;
+          return true;
+        }
+        u++;
+      }
+    }
+    return false;
+  }
+
+
+  template<class Value>
+  typename HQueue<uint8, Value>::ValueType HQueue<uint8, Value>::popAnElement(KeyType k)
+  {
+    HQueue<uint8, Value>::ValueType v = queues_[k].front();
+    numberOfElements--;
+    queues_[k].pop();
+    return v;
+  }
+
+  template<class Value>
+  typename HQueue<uint8, Value>::ValueType HQueue<uint8, Value>::front(KeyType k) const
+  {
+    if (!isEmpty()) {
+      uint8 closestQueue = 0;
+      if (findClosestNonEmptyQueue(k, closestQueue)) {
+        return queues_[closestQueue];
+      }
+    }
+    return HQueue<uint8, Value>::ValueType();
+  }
+
 } 
