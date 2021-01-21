@@ -3,12 +3,26 @@
 #include "morphotree/core/types.hpp"
 #include "morphotree/core/alias.hpp"
 
+#include <iostream>
 #include <queue>
 #include <vector> 
 #include <array>
 
 namespace morphotree 
 {
+
+  template<class KeyType, class ValueType> 
+  struct KeyValue
+  {
+    KeyValue();
+    KeyValue(KeyType k, ValueType v);
+
+    KeyType key;
+    ValueType value;
+  };
+
+  template<class KeyType, class ValueType>
+  std::ostream& operator<<(std::ostream &out, KeyValue<KeyType, ValueType> &keyValue);
 
   // hierarchical queues implemented by red black tree.
   template<class Key, class Value>
@@ -17,6 +31,7 @@ namespace morphotree
   public:
     using KeyType = Key;
     using ValueType = Value;
+    using KeyValueType = KeyValue<Key, Value>;
 
   private:
     class HQNode
@@ -33,8 +48,8 @@ namespace morphotree
     HQueue();
 
     void insert(KeyType k, ValueType v);
-    ValueType pop(KeyType k);
-    ValueType front(KeyType k) const;
+    KeyValueType pop(KeyType k);
+    KeyValueType front(KeyType k) const;
     inline bool isEmpty() const { return root_ == nullptr; }
 
   private:
@@ -52,12 +67,13 @@ namespace morphotree
   public:
     using KeyType = uint8;
     using ValueType = Value;
+    using KeyValueType = KeyValue<KeyType, ValueType>;
 
     HQueue();
     
     void insert(KeyType k, ValueType v);
-    ValueType pop(KeyType k);
-    ValueType front(KeyType k) const;
+    KeyValueType pop(KeyType k);
+    KeyValueType front(KeyType k) const;
     inline bool isEmpty() const { return numberOfElements == 0; } ;
 
   private: // methods
@@ -70,6 +86,29 @@ namespace morphotree
   };
 
   // =====================[ IMPLEMENTATION ] ===========================================
+  // KeyValue
+  template<class KeyType, class ValueType>
+  KeyValue<KeyType, ValueType>::KeyValue()
+    :key{}, value{}
+  {}
+  
+  template<class KeyType, class ValueType>
+  KeyValue<KeyType, ValueType>::KeyValue(KeyType k, ValueType v)
+    :key{k}, value{v}
+  {}
+
+  template<class KeyType, class ValueType>
+  std::ostream& operator<<(std::ostream &out, KeyValue<KeyType, ValueType> keyValue)
+  {
+    if (std::is_same<KeyType, uint8>() || std::is_same<KeyType, int8>()) {
+      out << "(" << static_cast<int32>(keyValue.key) << ", " << keyValue.value << ")";
+    }
+    else {
+      out << "(" << keyValue.key << ", " << keyValue.value << ")";
+    }
+    return out; 
+  }
+
   // Hierarchical Queue implemented by Red and Black Queue
   template<class Key, class Value>
   HQueue<Key, Value>::HQueue()
@@ -86,28 +125,31 @@ namespace morphotree
   }
 
   template<class Key, class Value>
-  typename HQueue<Key, Value>::ValueType HQueue<Key, Value>::pop(KeyType k)
+  typename HQueue<Key, Value>::KeyValueType HQueue<Key, Value>::pop(KeyType k)
   {
     NodeType *node = find(k);
     
     if (node == nullptr)
-      return ValueType();
+      return KeyValueType();
     else {
-      Value v = node->queue.front();
+      Value value = node->queue.front();
+      Key key = node->key;
       node->queue.pop();
       if (node->queue.empty())
         removeQueue(node);
+      
+      return KeyValueType{key, value};
     }
   }
 
   template<class Key, class Value>
-  typename HQueue<Key, Value>::ValueType HQueue<Key, Value>::front(KeyType k) const
+  typename HQueue<Key, Value>::KeyValueType HQueue<Key, Value>::front(KeyType k) const
   {
     NodeType *node = find(k);
     if (node == nullptr)
-      return ValueType();
+      return KeyValueType();
     else
-      return node->queue.front();
+      return KeyValueType{node->key, node->queue.front()};
   }
 
   template<class Key, class Value>
@@ -131,7 +173,6 @@ namespace morphotree
 
   // =====================[ IMPLEMENTATION ] ===========================================
   // Hierarchical Queue using simple array
-
   template<class Value>
   HQueue<uint8, Value>::HQueue()
     :numberOfElements{0}
@@ -145,15 +186,15 @@ namespace morphotree
   }
 
   template<class Value>
-  typename HQueue<uint8, Value>::ValueType HQueue<uint8, Value>::pop(KeyType k)
+  typename HQueue<uint8, Value>::KeyValueType HQueue<uint8, Value>::pop(KeyType k)
   {
     if (!isEmpty()) { 
       uint8 closestQueue = 0;
       if (findClosestNonEmptyQueue(k, closestQueue)) {
-        return popAnElement(closestQueue);
+        return KeyValueType(closestQueue, popAnElement(closestQueue));
       }
     }
-    return HQueue<uint8, ValueType>::ValueType();
+    return HQueue<uint8, ValueType>::KeyValueType();
   }
 
   template<class Value>
@@ -212,15 +253,14 @@ namespace morphotree
   }
 
   template<class Value>
-  typename HQueue<uint8, Value>::ValueType HQueue<uint8, Value>::front(KeyType k) const
+  typename HQueue<uint8, Value>::KeyValueType HQueue<uint8, Value>::front(KeyType k) const
   {
     if (!isEmpty()) {
       uint8 closestQueue = 0;
       if (findClosestNonEmptyQueue(k, closestQueue)) {
-        return queues_[closestQueue];
+        return  KeyValueType{closestQueue, queues_[closestQueue]};
       }
     }
-    return HQueue<uint8, Value>::ValueType();
+    return HQueue<uint8, Value>::KeyValueType();
   }
-
 } 
