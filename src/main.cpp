@@ -13,6 +13,7 @@
 #include "morphotree/tree/treeOfShapes/kgrid.hpp"
 #include "morphotree/core/hqueue.hpp"
 
+#include "morphotree/tree/treeOfShapes/order_image.hpp"
 
 #include <iostream>
 #include <memory>
@@ -199,14 +200,14 @@ using tree_t = MorphologicalTree<uint8>;
 
 int main(int argc, char *argv[]) 
 {
-  // std::vector<uint8> f = {
-  //   4, 4, 4, 4, 4, 4,
-  //   4, 7, 7, 0, 0, 4,
-  //   4, 7, 4, 4, 0, 4,
-  //   4, 7, 4, 4, 0, 4,
-  //   4, 7, 7, 0, 0, 4,
-  //   4, 4, 4, 4, 4, 4
-  // };
+  std::vector<uint8> f = {
+    4, 4, 4, 4, 4, 4,
+    4, 7, 7, 0, 0, 4,
+    4, 7, 4, 4, 0, 4,
+    4, 7, 4, 4, 0, 4,
+    4, 7, 7, 0, 0, 4,
+    4, 4, 4, 4, 4, 4
+  };
 
   //   std::vector<uint8> f = {
   //     4, 4, 4, 4, 4, 4,
@@ -217,15 +218,15 @@ int main(int argc, char *argv[])
   //     4, 4, 4, 4, 4, 4
   // };
 
-  // Box domain = Box::fromSize(UI32Point{6, 6});
+  Box domain = Box::fromSize(UI32Point{6, 6});
 
-  // using KGridType = KGrid<uint8>; 
+  using KGridType = KGrid<uint8>; 
 
-  // KGridType grid{domain, f};
+  KGridType grid{domain, f};
 
   // Box gdomain = grid.immerseDomain();
   
-  // std::cout << grid;
+  //std::cout << grid;
 
   // std::map<int32, char> q;
   // std::map<int32, char>::iterator lower, upper;
@@ -244,20 +245,32 @@ int main(int argc, char *argv[])
   // std::cout << "lower = (" << upper->first << ", " << upper->second << ")" << std::endl;
 
 
-  HQueue<uint8, int32> hqueue;
+  // HQueue<uint8, int32> hqueue;
 
-  hqueue.insert(5, 0);
-  hqueue.insert(5, 1);
-  hqueue.insert(5, 2);
-  hqueue.insert(5, 3);
+  // hqueue.insert(5, 0);
+  // hqueue.insert(5, 1);
+  // hqueue.insert(5, 2);
+  // hqueue.insert(5, 3);
 
-  hqueue.insert(2, 3);
-  hqueue.insert(2, 5);
+  // hqueue.insert(2, 3);
+  // hqueue.insert(2, 5);
 
-  hqueue.insert(9, 1);
-  hqueue.insert(9, 2);
+  // hqueue.insert(9, 1);
+  // hqueue.insert(9, 2);
 
-  std::cout << hqueue.pop(5) << " " << hqueue.pop(3) <<  " " << hqueue.pop(2) << " " << hqueue.pop(2) << std::endl;
+  // std::cout << hqueue.pop(5) << " " << hqueue.pop(3) <<  " " << hqueue.pop(2) << " " << hqueue.pop(2) << std::endl;
+
+  OrderImageResult result = computeOrderImage(domain, f, grid); 
+
+  std::vector<uint32> ord = result.orderImg;
+  Box Fdomain = result.domain;
+  
+  for (uint32 y = Fdomain.top(); y <= Fdomain.bottom(); y++) {
+    for (uint32 x = Fdomain.left(); x <= Fdomain.right(); x++) {
+      std::cout << ord[Fdomain.pointToIndex(x, y)] << " ";
+    }
+    std::cout << "\n";
+  }
 
   return 0;
 }
