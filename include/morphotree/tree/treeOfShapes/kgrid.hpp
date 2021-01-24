@@ -61,9 +61,20 @@ namespace morphotree
     void interval(const I32Point &p, IntervalType intvl) { data_[domain_.pointToIndex(p)]; }
 
     I32Point emergePoint(const I32Point &p) const;
+    uint32 emergePoint(uint32 p) const;
+    std::vector<I32Point> emergeSet(const std::vector<I32Point> &set) const;
+    std::vector<uint32> emergeSet(const std::vector<uint32> &set) const;
     Box emergeDomain() const;
+
     I32Point immersePoint(const I32Point &p) const;
+    uint32 immersePoint(uint32 p) const;
+    std::vector<I32Point> immerseSet(const std::vector<I32Point> &set) const;
+    std::vector<uint32> immerseSet(const std::vector<uint32> &set) const;
     Box immerseDomain() const;
+
+    bool isZeroFace(const I32Point &p) const;
+    bool isOneFace(const I32Point &p) const;
+    bool isTwoFace(const I32Point &p) const;
 
     inline std::shared_ptr<AdjacencyUC> adj() { return adjU_; }
     inline const std::shared_ptr<AdjacencyUC> adj() const { return adjU_; }
@@ -71,7 +82,6 @@ namespace morphotree
     void computeGrid(const Box &imgDomain, const std::vector<ValueType> &data);
     IntervalType computeZeroFace(const I32Point &p, Type v0, Type v1, Type V2, Type v3) const;
     
-
   private:
     Box domain_;
     Box imgDomain_;
@@ -251,6 +261,35 @@ namespace morphotree
   }
 
   template<class ValueType>
+  std::vector<I32Point> KGrid<ValueType>::emergeSet(const std::vector<I32Point> &set) const
+  {
+    std::vector<I32Point> eSet;
+    eSet.reserve(set.size());
+    for (const I32Point &p : set) {
+      if (isZeroFace(p)) {
+        eSet.push_back(emergePoint(p));
+      }
+    }
+
+    return eSet;  
+  }
+
+  template<class ValueType>
+  std::vector<uint32> KGrid<ValueType>::emergeSet(const std::vector<uint32> &set) const
+  {
+    std::vector<uint32> eSet;
+    eSet.reserve(set.size());
+    for (uint32 idx : set) {
+      I32Point p = domain_.indexToPoint(idx);
+      if (isZeroFace(p)) {
+        eSet.push_back(imgDomain_.pointToIndex(emergePoint(p)));
+      }
+    }
+
+    return eSet;
+  }
+
+  template<class ValueType>
   Box KGrid<ValueType>::emergeDomain() const
   {
     return imgDomain_;
@@ -264,9 +303,60 @@ namespace morphotree
   }
 
   template<class ValueType>
+  std::vector<I32Point> KGrid<ValueType>::immerseSet(const std::vector<I32Point> &set) const
+  {
+    std::vector<I32Point> iSet;
+    iSet.reserve(set.size());
+    for (const I32Point &p : set) {
+      iSet.push_back(immersePoint(p));
+    }
+    
+    return iSet;
+  }
+
+  template<class ValueType>
+  std::vector<uint32> KGrid<ValueType>::immerseSet(const std::vector<uint32> &set) const
+  {
+    std::vector<uint32> iSet;
+    iSet.reserve(set.size());
+    for (uint32 p : set) {
+      iSet.push_back(immersePoint(p));
+    }
+
+    return iSet;
+  }
+
+  template<class ValueType>
+  uint32 KGrid<ValueType>::immersePoint(uint32 p) const
+  {
+    I32Point tp = immersePoint(imgDomain_.indexToPoint(p));
+    return domain_.pointToIndex(tp);
+  }
+    
+  
+  template<class ValueType>
   Box KGrid<ValueType>::immerseDomain() const
   {
     return domain_;
+  }
+
+  template<class ValueType>
+  bool KGrid<ValueType>::isZeroFace(const I32Point &p) const
+  {
+    return ((domain_.left() - p.x()) % 2 == 0) && ((domain_.top() - p.y()) % 2 == 0);
+  }
+
+  template<class ValueType>
+  bool KGrid<ValueType>::isOneFace(const I32Point &p) const
+  {
+    return (((domain_.left() - p.x()) % 2) == 1) && (((domain_.top() - p.y()) % 2) == 0) || 
+      (((domain_.left() - p.x()) % 2) == 0) && (((domain_.top() - p.y()) % 2) == 1);
+  }
+
+  template<class ValueType>
+  bool KGrid<ValueType>::isTwoFace(const I32Point &p) const
+  {
+    return (((domain_.left() - p.x()) % 2) == 1) && (((domain_.top() - p.y()) % 2) == 1);
   }
 
   template<class ValueType>

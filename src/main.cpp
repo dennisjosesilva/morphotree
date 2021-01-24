@@ -14,6 +14,7 @@
 #include "morphotree/core/hqueue.hpp"
 
 #include "morphotree/tree/treeOfShapes/order_image.hpp"
+#include "morphotree/tree/treeOfShapes/tos.hpp"
 
 #include <iostream>
 #include <memory>
@@ -260,7 +261,7 @@ int main(int argc, char *argv[])
 
   // std::cout << hqueue.pop(5) << " " << hqueue.pop(3) <<  " " << hqueue.pop(2) << " " << hqueue.pop(2) << std::endl;
 
-  OrderImageResult result = computeOrderImage(domain, f, grid); 
+  OrderImageResult<uint8> result = computeOrderImage(domain, f, grid); 
 
   std::vector<uint32> ord = result.orderImg;
   Box Fdomain = result.domain;
@@ -271,6 +272,43 @@ int main(int argc, char *argv[])
     }
     std::cout << "\n";
   }
+
+  std::cout << "\nemerged set\n" ;
+
+  std::vector<I32Point> pts {
+    I32Point{0,0}, I32Point{0,1}, I32Point{0, 2}, I32Point{0, 3},
+    I32Point{1,2}, I32Point{1,3}, I32Point{1, 4}, I32Point{2, 4}
+  };
+
+  std::vector<I32Point> emergedPts = grid.emergeSet(pts);
+
+  for (const I32Point &p : emergedPts) {
+    std::cout << p << std::endl;
+  }
+
+
+  using MorphoTree = MorphologicalTree<uint8>;
+  MorphoTree etos = buildEnlargedTreeOfShapes(domain, f);
+
+  etos.tranverse([&grid](MorphoTree::NodePtr node) {
+    printImageIntoConsole(node->reconstruct(grid.immerseDomain()), grid.immerseDomain());
+    std::cout << std::endl;
+  });
+
+  printImageIntoConsoleWithCast<int32>(etos.reconstructImage(), grid.immerseDomain());
+  std::cout << std::endl;
+  std::cout << "emerged Tree of Shapes." << std::endl;
+
+  // tree of shapes
+  MorphoTree tos = buildTreeOfShapes(domain, f);
+  
+  tos.tranverse([&domain](MorphoTree::NodePtr node) {
+    printImageIntoConsole(node->reconstruct(domain), domain);
+    std::cout << std::endl;
+  });
+
+  printImageIntoConsoleWithCast<int32>(tos.reconstructImage(), domain);
+
 
   return 0;
 }

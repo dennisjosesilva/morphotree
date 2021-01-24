@@ -66,6 +66,7 @@ namespace morphotree
     using NodeType = MTNode<WeightType>;
 
     MorphologicalTree(const std::vector<WeightType> &f, const CTBuilderResult &res);
+    MorphologicalTree(std::vector<uint32> &&cmap, std::vector<NodePtr> &&nodes);
     MorphologicalTree();
 
     const NodePtr node(uint id) const { return nodes_[id]; }
@@ -78,6 +79,8 @@ namespace morphotree
     std::vector<bool> reconstructNode(uint32 nodeId, const Box &domain) const { return nodes_[nodeId]->reconstruct(domain); };
 
     uint32 numberOfNodes() const { return nodes_.size(); }
+
+    uint32 numberOfCNPs() const { return cmap_.size(); }
 
     void tranverse(std::function<void(const NodePtr node)> visit) const;
 
@@ -167,6 +170,12 @@ namespace morphotree
   MorphologicalTree<WeightType>::MorphologicalTree()
   { }
 
+  template<class WeightType>
+  MorphologicalTree<WeightType>::MorphologicalTree(std::vector<uint32> &&cmap, std::vector<NodePtr> &&nodes)
+    :cmap_{cmap}, nodes_{nodes}
+  {
+    root_ = nodes_[0];
+  }
 
   template<class WeightType>
   MorphologicalTree<WeightType>::MorphologicalTree(const std::vector<WeightType> &f, 

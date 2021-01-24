@@ -8,19 +8,23 @@
 #include "morphotree/tree/treeOfShapes/kgrid.hpp"
 
 namespace morphotree {
+  template<class Value>
   struct OrderImageResult
   {
+    using ValueType = Value;
+
     OrderImageResult();
-    OrderImageResult(std::vector<uint32> porderImg, std::vector<uint32> pR, Box pDomain);
+    OrderImageResult(std::vector<uint32> porderImg, std::vector<ValueType> pflattern, std::vector<uint32> pR, Box pDomain);
 
     std::vector<uint32> orderImg;
     std::vector<uint32> R;
+    std::vector<ValueType> flattern;
     Box domain; 
   };
 
 
   template<class ValueType>
-  OrderImageResult computeOrderImage(
+  OrderImageResult<ValueType> computeOrderImage(
     const Box &domain,
     const std::vector<ValueType> &f,
     const KGrid<ValueType> &F,
@@ -29,15 +33,18 @@ namespace morphotree {
 
 
   // ====================================== [ IMPLEMENTATION ] ============================================
-  OrderImageResult::OrderImageResult()
-  {}
-
-  OrderImageResult::OrderImageResult(std::vector<uint32> porderImg, std::vector<uint32> pR, Box pDomain)
-    :orderImg{porderImg}, R{pR}, domain{pDomain}
+  template<class ValueType>
+  OrderImageResult<ValueType>::OrderImageResult()
   {}
 
   template<class ValueType>
-  OrderImageResult computeOrderImage(
+  OrderImageResult<ValueType>::OrderImageResult(std::vector<uint32> porderImg, std::vector<ValueType> pflattern,
+    std::vector<uint32> pR, Box pDomain)
+    :orderImg{porderImg}, flattern{pflattern}, R{pR}, domain{pDomain}
+  {}
+
+  template<class ValueType>
+  OrderImageResult<ValueType> computeOrderImage(
     const Box &domain,
     const std::vector<ValueType> &f,
     const KGrid<ValueType> &F,
@@ -57,14 +64,17 @@ namespace morphotree {
     Box Fdomain = F.immerseDomain();
 
     QueueType Q;
-    std::vector<uint32> R;
+    std::vector<ValueType> flattern = std::vector<ValueType>(Fdomain.numberOfPoints());
+    std::vector<uint32> R = std::vector<uint32>(Fdomain.numberOfPoints(), UNPROCESSED);
     std::vector<uint32> ord = std::vector<uint32>(Fdomain.numberOfPoints(), UNPROCESSED);
     const std::shared_ptr<Adjacency> adj = F.adj();
 
-    R.reserve(Fdomain.numberOfPoints());
+    
 
     ValueType lambdaOld = f[domain.pointToIndex(pInfinity)];
-    Q.insert(lambdaOld, Fdomain.pointToIndex(pInfinity));
+    Q.insert(lambdaOld, Fdomain.pointToIndex(F.immersePoint(pInfinity)));   
+
+    uint32 i = R.size()-1;
 
     while (!Q.isEmpty()) {
       QueueKeyValueType keyvalue = Q.pop(lambdaOld);
@@ -77,7 +87,8 @@ namespace morphotree {
       }
 
       ord[pIndex] = d;
-      R.push_back(pIndex);
+      flattern[pIndex] = lambda;
+      R[i--] = pIndex;
 
       for (uint32 n : adj->neighbours(pIndex)) {
         if (ord[n] == UNPROCESSED) {
@@ -97,6 +108,6 @@ namespace morphotree {
       lambdaOld = lambda;
     }
 
-    return OrderImageResult{ord, R, Fdomain};
+    return OrderImageResult<ValueType>{ord, flattern, R, Fdomain};
   }  
 }
