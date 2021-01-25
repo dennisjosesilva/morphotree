@@ -20,6 +20,7 @@
 
 #include "core/hqueuepy.hpp"
 #include "tree/treeOfShapes/kgridpy.hpp"
+#include "tree/treeOfShapes/order_imagepy.hpp"
 
 namespace py = pybind11;
 namespace mt = morphotree;
@@ -135,4 +136,7 @@ PYBIND11_MODULE(morphotreepy, m)
 
   bindFoundamentalTypeInterval(m);
   bindFoundamentalTypeKGrid(m);
+
+  bindFoundamentalTypeOrderImageResult(m);
+  bindFoundamentalTypeComputeOrderImage(m);
 }

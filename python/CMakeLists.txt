@@ -24,6 +24,7 @@ pybind11_add_module(morphotreepy
   src/mtreepy.cpp
   src/core/hqueuepy.cpp
   src/tree/treeOfShapes/kgridpy.cpp
+  src/tree/treeOfShapes/order_imagepy.cpp
   src/module.cpp)
   
 target_link_libraries(morphotreepy PRIVATE ${CONAN_LIBS})
