@@ -18,6 +18,8 @@
 #include "morphotree/tree/ct_builder.hpp"
 #include "morphotree/tree/mtree.hpp"
 
+#include "core/hqueuepy.hpp"
+
 namespace py = pybind11;
 namespace mt = morphotree;
 
@@ -112,4 +114,8 @@ PYBIND11_MODULE(morphotreepy, m)
   bindFoundamentalTypeCTBuilder(m);
   bindFoundamentalTypeMTNode(m);
   bindFoundamentalTypeMorphologicalTree(m);
+
+  // tree of shapes
+  bindFoundamentalTypeKeyValue(m);
+  bindFoundamentalTypeHQueue(m);
 }

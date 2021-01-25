@@ -22,6 +22,7 @@ pybind11_add_module(morphotreepy
   src/pointpy.cpp  
   src/ctbuilderpy.cpp 
   src/mtreepy.cpp
+  src/core/hqueuepy.cpp
   src/module.cpp)
   
 target_link_libraries(morphotreepy PRIVATE ${CONAN_LIBS})
