@@ -19,6 +19,7 @@
 #include "morphotree/tree/mtree.hpp"
 
 #include "core/hqueuepy.hpp"
+#include "tree/treeOfShapes/kgridpy.hpp"
 
 namespace py = pybind11;
 namespace mt = morphotree;
@@ -106,6 +107,19 @@ PYBIND11_MODULE(morphotreepy, m)
     .def(py::init<mt::Box>())
     .def("neighbours", &mt::Adjacency8C::neighbours);
 
+  py::enum_<mt::DiagonalConnection>(m, "DiagonalConnection", py::arithmetic())
+    .value("None", mt::DiagonalConnection::None)
+    .value("SW", mt::DiagonalConnection::SW)
+    .value("NE", mt::DiagonalConnection::NE)
+    .value("SE", mt::DiagonalConnection::SE)
+    .value("NW", mt::DiagonalConnection::NW);
+
+  py::class_<mt::AdjacencyUC, mt::Adjacency, std::shared_ptr<mt::AdjacencyUC>>(m, "AdjacencyUC")
+    .def(py::init<mt::Box>())
+    .def("neighbours", &mt::AdjacencyUC::neighbours)
+    .def("dconn", py::overload_cast<mt::uint32>(&mt::AdjacencyUC::dconn))
+    .def("dconn", py::overload_cast<mt::uint32, mt::DiagonalConnection>(&mt::AdjacencyUC::dconn));
+
   py::class_<mt::CTBuilderResult>(m, "CTBuilderResult")
     .def(py::init<const std::vector<mt::uint32>, std::vector<mt::uint32>>())
     .def_readwrite("parent", &mt::CTBuilderResult::parent)
@@ -118,4 +132,7 @@ PYBIND11_MODULE(morphotreepy, m)
   // tree of shapes
   bindFoundamentalTypeKeyValue(m);
   bindFoundamentalTypeHQueue(m);
+
+  bindFoundamentalTypeInterval(m);
+  bindFoundamentalTypeKGrid(m);
 }

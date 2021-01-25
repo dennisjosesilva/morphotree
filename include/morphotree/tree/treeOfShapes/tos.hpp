@@ -142,5 +142,4 @@ namespace morphotree
 
     return MTree{std::move(cmap), std::move(nodes)};
   }
-
 }

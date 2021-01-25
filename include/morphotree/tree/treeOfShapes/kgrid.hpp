@@ -24,7 +24,7 @@ namespace morphotree
 
     inline ValueType  min() const { return min_; }
     inline ValueType& min() { return min_; }
-    inline void min(ValueType val) { min_ = min; }
+    inline void min(ValueType val) { min_ = val; }
 
     inline ValueType  max() const { return max_; }
     inline ValueType& max() { return max_; }
@@ -261,6 +261,12 @@ namespace morphotree
   }
 
   template<class ValueType>
+  uint32 KGrid<ValueType>::emergePoint(uint32 p) const 
+  {
+    return imgDomain_.pointToIndex(emergePoint(domain_.indexToPoint(p)));
+  }
+
+  template<class ValueType>
   std::vector<I32Point> KGrid<ValueType>::emergeSet(const std::vector<I32Point> &set) const
   {
     std::vector<I32Point> eSet;
@@ -343,20 +349,20 @@ namespace morphotree
   template<class ValueType>
   bool KGrid<ValueType>::isZeroFace(const I32Point &p) const
   {
-    return ((domain_.left() - p.x()) % 2 == 0) && ((domain_.top() - p.y()) % 2 == 0);
+    return ((p.x() - domain_.left()) % 2 == 0) && ((p.y() - domain_.top()) % 2 == 0);
   }
 
   template<class ValueType>
   bool KGrid<ValueType>::isOneFace(const I32Point &p) const
   {
-    return (((domain_.left() - p.x()) % 2) == 1) && (((domain_.top() - p.y()) % 2) == 0) || 
-      (((domain_.left() - p.x()) % 2) == 0) && (((domain_.top() - p.y()) % 2) == 1);
+    return (((p.x() - domain_.left()) % 2) == 1) && (((p.y() - domain_.top()) % 2) == 0) || 
+      (((p.x() - domain_.left()) % 2) == 0) && (((p.y() - domain_.top()) % 2) == 1);
   }
 
   template<class ValueType>
   bool KGrid<ValueType>::isTwoFace(const I32Point &p) const
   {
-    return (((domain_.left() - p.x()) % 2) == 1) && (((domain_.top() - p.y()) % 2) == 1);
+    return (((p.x() - domain_.left()) % 2) == 1) && (((p.y() - domain_.top()) % 2) == 1);
   }
 
   template<class ValueType>

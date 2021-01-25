@@ -258,7 +258,7 @@ namespace morphotree
     if (!isEmpty()) {
       uint8 closestQueue = 0;
       if (findClosestNonEmptyQueue(k, closestQueue)) {
-        return  KeyValueType{closestQueue, queues_[closestQueue]};
+        return  KeyValueType{closestQueue, queues_[closestQueue].front()};
       }
     }
     return HQueue<uint8, Value>::KeyValueType();

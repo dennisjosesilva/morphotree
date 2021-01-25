@@ -1,6 +1,7 @@
 #pragma once
 
 #include <numeric>
+#include "morphotree/core/alias.hpp"
 
 namespace morphotree 
 {
