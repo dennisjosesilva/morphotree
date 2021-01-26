@@ -52,7 +52,7 @@ py::array MTNodeReconstructAsImageNumpy(mt::MTNode<T> *node, const mt::Box &doma
 {
   std::vector<bool> rec = node->reconstruct(domain);
   py::array recnp = py::cast(rec);
-  recnp.resize({domain.width(), domain.height()});
+  recnp.resize({domain.height(), domain.width()});
   return recnp;
 }
 

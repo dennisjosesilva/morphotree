@@ -22,6 +22,8 @@
 #include "tree/treeOfShapes/kgridpy.hpp"
 #include "tree/treeOfShapes/order_imagepy.hpp"
 
+#include "tree/treeOfShapes/tospy.hpp"
+
 namespace py = pybind11;
 namespace mt = morphotree;
 
@@ -139,4 +141,9 @@ PYBIND11_MODULE(morphotreepy, m)
 
   bindFoundamentalTypeOrderImageResult(m);
   bindFoundamentalTypeComputeOrderImage(m);
+
+  bindFoundamentalTypeBuildOrderImageMaxTree(m);
+  bindFoundamentalTypeBuildEnlargedTreeOfShapes(m);
+  bindFoundamentalTypeBuildTreeOfShapes(m);
+  bindFoundamentalTypeEmergeTreeOfShapes(m);
 }

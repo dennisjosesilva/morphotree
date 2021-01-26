@@ -30,8 +30,6 @@ namespace morphotree {
     const KGrid<ValueType> &F,
     const I32Point &pInfinity = I32Point{0,0});
 
-
-
   // ====================================== [ IMPLEMENTATION ] ============================================
   template<class ValueType>
   OrderImageResult<ValueType>::OrderImageResult()
