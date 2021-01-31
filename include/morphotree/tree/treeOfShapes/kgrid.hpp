@@ -191,12 +191,6 @@ namespace morphotree
     p.y()++;
     for (; p.y() <= domain_.bottom(); p.y() += 2) {
       for (p.x(domain_.left()+1); p.x() <= domain_.right(); p.x() += 2) {
-        
-        if (p.x() == 45 && p.y() == 513)
-        {
-          std::cout << "pixel" << std::endl;
-        }
-
         I32Point q1 = emergePoint(p + I32Point{-1,-1});
         I32Point q2 = emergePoint(p + I32Point{ 1,-1});
         I32Point q3 = emergePoint(p + I32Point{-1, 1});
