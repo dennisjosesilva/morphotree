@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <numeric>
 #include <iomanip>
+#include <functional>
 
 #include <map>
 
@@ -199,116 +200,193 @@ using tree_t = MorphologicalTree<uint8>;
 // }
 
 
-int main(int argc, char *argv[]) 
+// int main(int argc, char *argv[]) 
+// {
+//   std::vector<uint8> f = {
+//     4, 4, 4, 4, 4, 4,
+//     4, 7, 7, 0, 0, 4,
+//     4, 7, 4, 4, 0, 4,
+//     4, 7, 4, 4, 0, 4,
+//     4, 7, 7, 0, 0, 4,
+//     4, 4, 4, 4, 4, 4
+//   };
+
+//   //   std::vector<uint8> f = {
+//   //     4, 4, 4, 4, 4, 4,
+//   //     4, 4, 4, 4, 4, 4,
+//   //     4, 4, 0, 7, 4, 4,
+//   //     4, 4, 7, 0, 4, 4,
+//   //     4, 4, 4, 4, 4, 4,
+//   //     4, 4, 4, 4, 4, 4
+//   // };
+
+//   Box domain = Box::fromSize(UI32Point{6, 6});
+
+//   using KGridType = KGrid<uint8>; 
+
+//   KGridType grid{domain, f};
+
+//   // Box gdomain = grid.immerseDomain();
+  
+//   //std::cout << grid;
+
+//   // std::map<int32, char> q;
+//   // std::map<int32, char>::iterator lower, upper;
+
+//   // q[0] = 'a';
+//   // q[1] = 'b';
+//   // q[2] = 'c';
+
+//   // q[10] = 'd';
+//   // q[12] = 'f'; 
+  
+//   // lower = q.lower_bound(8);
+//   // upper = q.upper_bound(8);
+
+//   // std::cout << "lower = (" << lower->first << ", " << lower->second << ")" << std::endl;
+//   // std::cout << "lower = (" << upper->first << ", " << upper->second << ")" << std::endl;
+
+
+//   // HQueue<uint8, int32> hqueue;
+
+//   // hqueue.insert(5, 0);
+//   // hqueue.insert(5, 1);
+//   // hqueue.insert(5, 2);
+//   // hqueue.insert(5, 3);
+
+//   // hqueue.insert(2, 3);
+//   // hqueue.insert(2, 5);
+
+//   // hqueue.insert(9, 1);
+//   // hqueue.insert(9, 2);
+
+//   // std::cout << hqueue.pop(5) << " " << hqueue.pop(3) <<  " " << hqueue.pop(2) << " " << hqueue.pop(2) << std::endl;
+
+//   OrderImageResult<uint8> result = computeOrderImage(domain, f, grid); 
+
+//   std::vector<uint32> ord = result.orderImg;
+//   Box Fdomain = result.domain;
+  
+//   for (uint32 y = Fdomain.top(); y <= Fdomain.bottom(); y++) {
+//     for (uint32 x = Fdomain.left(); x <= Fdomain.right(); x++) {
+//       std::cout << ord[Fdomain.pointToIndex(x, y)] << " ";
+//     }
+//     std::cout << "\n";
+//   }
+
+//   std::cout << "\nemerged set\n" ;
+
+//   std::vector<I32Point> pts {
+//     I32Point{0,0}, I32Point{0,1}, I32Point{0, 2}, I32Point{0, 3},
+//     I32Point{1,2}, I32Point{1,3}, I32Point{1, 4}, I32Point{2, 4}
+//   };
+
+//   std::vector<I32Point> emergedPts = grid.emergeSet(pts);
+
+//   for (const I32Point &p : emergedPts) {
+//     std::cout << p << std::endl;
+//   }
+
+
+//   using MorphoTree = MorphologicalTree<uint8>;
+//   MorphoTree etos = buildEnlargedTreeOfShapes(domain, f);
+
+//   etos.tranverse([&grid](MorphoTree::NodePtr node) {
+//     printImageIntoConsole(node->reconstruct(grid.immerseDomain()), grid.immerseDomain());
+//     std::cout << std::endl;
+//   });
+
+//   printImageIntoConsoleWithCast<int32>(etos.reconstructImage(), grid.immerseDomain());
+//   std::cout << std::endl;
+//   std::cout << "emerged Tree of Shapes." << std::endl;
+
+//   // tree of shapes
+//   MorphoTree tos = buildTreeOfShapes(domain, f);
+  
+//   tos.tranverse([&domain](MorphoTree::NodePtr node) {
+//     printImageIntoConsole(node->reconstruct(domain), domain);
+//     std::cout << std::endl;
+//   });
+
+//   printImageIntoConsoleWithCast<int32>(tos.reconstructImage(), domain);
+
+
+//   return 0;
+// }
+
+
+
+int main(int argc, char *argv[])
 {
-  std::vector<uint8> f = {
-    4, 4, 4, 4, 4, 4,
-    4, 7, 7, 0, 0, 4,
-    4, 7, 4, 4, 0, 4,
-    4, 7, 4, 4, 0, 4,
-    4, 7, 7, 0, 0, 4,
-    4, 4, 4, 4, 4, 4
-  };
-
-  //   std::vector<uint8> f = {
-  //     4, 4, 4, 4, 4, 4,
-  //     4, 4, 4, 4, 4, 4,
-  //     4, 4, 0, 7, 4, 4,
-  //     4, 4, 7, 0, 4, 4,
-  //     4, 4, 4, 4, 4, 4,
-  //     4, 4, 4, 4, 4, 4
-  // };
-
-  Box domain = Box::fromSize(UI32Point{6, 6});
-
-  using KGridType = KGrid<uint8>; 
-
-  KGridType grid{domain, f};
-
-  // Box gdomain = grid.immerseDomain();
-  
-  //std::cout << grid;
-
-  // std::map<int32, char> q;
-  // std::map<int32, char>::iterator lower, upper;
-
-  // q[0] = 'a';
-  // q[1] = 'b';
-  // q[2] = 'c';
-
-  // q[10] = 'd';
-  // q[12] = 'f'; 
-  
-  // lower = q.lower_bound(8);
-  // upper = q.upper_bound(8);
-
-  // std::cout << "lower = (" << lower->first << ", " << lower->second << ")" << std::endl;
-  // std::cout << "lower = (" << upper->first << ", " << upper->second << ")" << std::endl;
-
-
-  // HQueue<uint8, int32> hqueue;
-
-  // hqueue.insert(5, 0);
-  // hqueue.insert(5, 1);
-  // hqueue.insert(5, 2);
-  // hqueue.insert(5, 3);
-
-  // hqueue.insert(2, 3);
-  // hqueue.insert(2, 5);
-
-  // hqueue.insert(9, 1);
-  // hqueue.insert(9, 2);
-
-  // std::cout << hqueue.pop(5) << " " << hqueue.pop(3) <<  " " << hqueue.pop(2) << " " << hqueue.pop(2) << std::endl;
-
-  OrderImageResult<uint8> result = computeOrderImage(domain, f, grid); 
-
-  std::vector<uint32> ord = result.orderImg;
-  Box Fdomain = result.domain;
-  
-  for (uint32 y = Fdomain.top(); y <= Fdomain.bottom(); y++) {
-    for (uint32 x = Fdomain.left(); x <= Fdomain.right(); x++) {
-      std::cout << ord[Fdomain.pointToIndex(x, y)] << " ";
-    }
-    std::cout << "\n";
-  }
-
-  std::cout << "\nemerged set\n" ;
-
-  std::vector<I32Point> pts {
-    I32Point{0,0}, I32Point{0,1}, I32Point{0, 2}, I32Point{0, 3},
-    I32Point{1,2}, I32Point{1,3}, I32Point{1, 4}, I32Point{2, 4}
-  };
-
-  std::vector<I32Point> emergedPts = grid.emergeSet(pts);
-
-  for (const I32Point &p : emergedPts) {
-    std::cout << p << std::endl;
-  }
-
-
   using MorphoTree = MorphologicalTree<uint8>;
-  MorphoTree etos = buildEnlargedTreeOfShapes(domain, f);
+  using Grid = KGrid<uint8>;
 
-  etos.tranverse([&grid](MorphoTree::NodePtr node) {
-    printImageIntoConsole(node->reconstruct(grid.immerseDomain()), grid.immerseDomain());
-    std::cout << std::endl;
-  });
+  int width, height, nchannels;
+  uint8 *data = stbi_load("/mnt/HDD-Ubuntu/documents/phd/code/simple-morph-tree/image/Zuckerberg.pgm", &width, &height, &nchannels, 1);
 
-  printImageIntoConsoleWithCast<int32>(etos.reconstructImage(), grid.immerseDomain());
-  std::cout << std::endl;
-  std::cout << "emerged Tree of Shapes." << std::endl;
+  std::vector<uint8> f(data, data + (width*height));
+  Box domain = Box::fromSize(UI32Point{width, height});
 
-  // tree of shapes
-  MorphoTree tos = buildTreeOfShapes(domain, f);
   
-  tos.tranverse([&domain](MorphoTree::NodePtr node) {
-    printImageIntoConsole(node->reconstruct(domain), domain);
-    std::cout << std::endl;
+  Grid F{domain, f};
+  Box Fdomain = F.immerseDomain();
+
+  OrderImageResult<uint8> res = computeOrderImage(domain, f, F);
+
+  MorphoTree tree = buildEnlargedTreeOfShapes(domain, f, F);
+
+  tree.tranverse([&F,&Fdomain](MorphoTree::NodePtr node){ 
+    bool hasCNP = false;
+    for (uint32 cnp : node->cnps()) {
+      if (F.isZeroFace(Fdomain.indexToPoint(cnp))) {
+        hasCNP = true;
+        break;
+      }
+    }
+    if (!hasCNP) {
+      std::cout << "node #" << node->id() << std::endl;
+      for (uint32 p : node->cnps()) {
+        std::cout << "\t" << Fdomain.indexToPoint(p) << "\n";
+      }
+    }
   });
 
-  printImageIntoConsoleWithCast<int32>(tos.reconstructImage(), domain);
+  // std::vector<uint8> filtered_image = tree.reconstructImage();
+  // stbi_write_png("../image/output.png", domain.width(), domain.height(), 1, (void*)filtered_image.data(), 0);
+  //stbi_write_png("../image/output.png", Fdomain.width(), Fdomain.height(), 1, (void*)res.orderImg.data(), 0);
+  // stbi_image_free(data);
 
+  std::cout << "\nimage window: \n";
+
+
+  std::vector<uint32> orderWindow;
+  Box window = Box::fromCorners(I32Point(492, 468), I32Point(494, 470));
+  for (int y = window.top(); y <= window.bottom(); y++) {
+    for (int x = window.left(); x <= window.right(); x++) {
+      orderWindow.push_back(res.orderImg[Fdomain.pointToIndex(x, y)]);
+    }
+  }
+
+  printImageIntoConsoleWithCast<uint32>(orderWindow, window);
+  
+  I32Point p{493, 469};
+  Box fwindowBox = Box::fromCorners(F.emergePoint(I32Point(492, 468)), F.emergePoint(I32Point(494, 470)));
+  std::vector<uint8> fwindow = {
+    f[domain.pointToIndex(F.emergePoint(p +  I32Point{-1,-1}))], f[domain.pointToIndex( F.emergePoint(p +  I32Point{ 1,-1}))],
+    f[domain.pointToIndex(F.emergePoint(p +  I32Point{-1, 1}))], f[domain.pointToIndex( F.emergePoint(p +  I32Point{ 1, 1}))]
+  };
+  
+  printImageIntoConsoleWithCast<int>(fwindow, fwindowBox);
+
+  std::cout << std::endl << std::endl;
+  printImageIntoConsoleWithCast<int>(f, Box::fromCorners(F.emergePoint(I32Point(44, 512)), F.emergePoint(I32Point(46, 514))));
+
+
+  for (uint32 n : F.adj()->neighbours(Fdomain.pointToIndex(I32Point(492, 470)))) {
+    std::cout << Fdomain.indexToPoint(n);
+  }
+
+  std::cout << "=========== DONE ================\n";
 
   return 0;
 }

@@ -46,6 +46,7 @@ namespace morphotree
     inline const std::list<NodePtr>& children() const { return children_; }
     
     std::vector<uint32> reconstruct() const;
+    void reconstruct(std::vector<uint32> &pixels, const NodePtr node) const; 
     std::vector<bool> reconstruct(const Box &domain) const;
 
     NodePtr copy() const;
@@ -126,11 +127,19 @@ namespace morphotree
   std::vector<uint32> MTNode<WeightType>::reconstruct() const
   {
     std::vector<uint32> pixels{cnps_};
-    for (NodePtr node : children_) {
-      std::vector<uint32> recChild = node->reconstruct();
-      pixels.insert(pixels.end(), recChild.begin(), recChild.end());
+    for (NodePtr child : children_) {
+      reconstruct(pixels, child);
     }
     return pixels;
+  }
+
+  template<class WeightType>
+  void MTNode<WeightType>::reconstruct(std::vector<uint32> &pixels, const NodePtr node) const
+  {
+    pixels.insert(pixels.end(), node->cnps().begin(), node->cnps().end());
+    for (NodePtr child: node->children()) {
+      reconstruct(pixels, child);
+    }
   }
 
   template<class WeightType>

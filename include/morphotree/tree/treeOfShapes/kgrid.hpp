@@ -191,6 +191,12 @@ namespace morphotree
     p.y()++;
     for (; p.y() <= domain_.bottom(); p.y() += 2) {
       for (p.x(domain_.left()+1); p.x() <= domain_.right(); p.x() += 2) {
+        
+        if (p.x() == 45 && p.y() == 513)
+        {
+          std::cout << "pixel" << std::endl;
+        }
+
         I32Point q1 = emergePoint(p + I32Point{-1,-1});
         I32Point q2 = emergePoint(p + I32Point{ 1,-1});
         I32Point q3 = emergePoint(p + I32Point{-1, 1});
@@ -214,13 +220,15 @@ namespace morphotree
     //  -  p  -
     // v2  |  v3
 
+
+
     IntervalType v0v3 = IntervalType::fromMinMax(v0, v3);
     IntervalType v1v2 = IntervalType::fromMinMax(v1, v2);
 
     if (v0v3.min() > v1v2.max()) {
       // One critical configuration.
       adjU_->dconn(domain_.pointToIndex(p + I32Point{-1, 0}), DiagonalConnection::SE);
-      adjU_->dconn(domain_.pointToIndex(p + I32Point{ 0, 1}), DiagonalConnection::SW);
+      adjU_->dconn(domain_.pointToIndex(p + I32Point{ 0, 1}), DiagonalConnection::NW);
 
       adjU_->dconn(domain_.pointToIndex(p + I32Point{-1,-1}), DiagonalConnection::SE);
       adjU_->dconn(domain_.pointToIndex(p), DiagonalConnection::SE | DiagonalConnection::NW);
@@ -232,15 +240,15 @@ namespace morphotree
     }
     else if (v1v2.min() > v0v3.max()) {
       // TODO: Other critical Configuration.
-      adjU_->dconn(domain_.pointToIndex(p + I32Point{-1, 0}), DiagonalConnection::SE);
-      adjU_->dconn(domain_.pointToIndex(p + I32Point{ 0,+1}), DiagonalConnection::NW);
+      adjU_->dconn(domain_.pointToIndex(p + I32Point{-1, 0}), DiagonalConnection::NE);
+      adjU_->dconn(domain_.pointToIndex(p + I32Point{ 0,-1}), DiagonalConnection::SW);
 
-      adjU_->dconn(domain_.pointToIndex(p + I32Point{-1,-1}), DiagonalConnection::SE);
-      adjU_->dconn(domain_.pointToIndex(p), DiagonalConnection::SE | DiagonalConnection::NW);
-      adjU_->dconn(domain_.pointToIndex(p + I32Point{+1,+1}), DiagonalConnection::NW);
+      adjU_->dconn(domain_.pointToIndex(p + I32Point{+1,-1}), DiagonalConnection::SW);
+      adjU_->dconn(domain_.pointToIndex(p), DiagonalConnection::SW | DiagonalConnection::NE);
+      adjU_->dconn(domain_.pointToIndex(p + I32Point{-1,+1}), DiagonalConnection::NE);
 
-      adjU_->dconn(domain_.pointToIndex(p + I32Point{ 0,-1}), DiagonalConnection::SE);
-      adjU_->dconn(domain_.pointToIndex(p + I32Point{+1, 0}), DiagonalConnection::NW);
+      adjU_->dconn(domain_.pointToIndex(p + I32Point{ 0,+1}), DiagonalConnection::NE);
+      adjU_->dconn(domain_.pointToIndex(p + I32Point{+1, 0}), DiagonalConnection::SW);
 
       return v1v2;
     } 
@@ -349,7 +357,7 @@ namespace morphotree
   template<class ValueType>
   bool KGrid<ValueType>::isZeroFace(const I32Point &p) const
   {
-    return ((p.x() - domain_.left()) % 2 == 0) && ((p.y() - domain_.top()) % 2 == 0);
+    return (((p.x() - domain_.left()) % 2) == 0) && (((p.y() - domain_.top()) % 2) == 0);
   }
 
   template<class ValueType>

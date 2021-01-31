@@ -35,7 +35,7 @@ namespace morphotree
 
     inline DiagonalConnection& dconn(uint32 v) { return dconn_[v]; }
     inline DiagonalConnection  dconn(uint32 v) const { return dconn_[v]; }
-    inline void dconn(uint32 v, DiagonalConnection dconn) { dconn_[v] = dconn; }
+    inline void dconn(uint32 v, DiagonalConnection dconn) { dconn_[v] = dconn_[v] | dconn; }
 
   protected:
     Box domain_;

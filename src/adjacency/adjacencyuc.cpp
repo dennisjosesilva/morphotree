@@ -12,7 +12,6 @@ namespace morphotree
   std::vector<uint32> AdjacencyUC::neighbours(uint32 v) const
   {
     std::vector<uint32> n;
-    n.reserve(4);
 
     I32Point p = domain_.indexToPoint(v);
     for (const I32Point &q : offset_) {
