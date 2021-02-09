@@ -24,6 +24,9 @@
 #include <iomanip>
 #include <functional>
 
+#include "morphotree/attributes/attributeComputer.hpp"
+#include "morphotree/attributes/areaComputer.hpp"
+
 #include <map>
 
 using namespace morphotree;
@@ -316,77 +319,117 @@ using tree_t = MorphologicalTree<uint8>;
 
 
 
-int main(int argc, char *argv[])
+// int main(int argc, char *argv[])
+// {
+//   using MorphoTree = MorphologicalTree<uint8>;
+//   using Grid = KGrid<uint8>;
+
+//   int width, height, nchannels;
+//   uint8 *data = stbi_load("/mnt/HDD-Ubuntu/documents/phd/code/simple-morph-tree/image/Zuckerberg.pgm", &width, &height, &nchannels, 1);
+
+//   std::vector<uint8> f(data, data + (width*height));
+//   Box domain = Box::fromSize(UI32Point{width, height});
+
+  
+//   Grid F{domain, f};
+//   Box Fdomain = F.immerseDomain();
+
+//   OrderImageResult<uint8> res = computeOrderImage(domain, f, F);
+
+//   MorphoTree tree = buildEnlargedTreeOfShapes(domain, f, F);
+
+//   tree.tranverse([&F,&Fdomain](MorphoTree::NodePtr node){ 
+//     bool hasCNP = false;
+//     for (uint32 cnp : node->cnps()) {
+//       if (F.isZeroFace(Fdomain.indexToPoint(cnp))) {
+//         hasCNP = true;
+//         break;
+//       }
+//     }
+//     if (!hasCNP) {
+//       std::cout << "node #" << node->id() << std::endl;
+//       for (uint32 p : node->cnps()) {
+//         std::cout << "\t" << Fdomain.indexToPoint(p) << "\n";
+//       }
+//     }
+//   });
+
+//   // std::vector<uint8> filtered_image = tree.reconstructImage();
+//   // stbi_write_png("../image/output.png", domain.width(), domain.height(), 1, (void*)filtered_image.data(), 0);
+//   //stbi_write_png("../image/output.png", Fdomain.width(), Fdomain.height(), 1, (void*)res.orderImg.data(), 0);
+//   // stbi_image_free(data);
+
+//   std::cout << "\nimage window: \n";
+
+
+//   std::vector<uint32> orderWindow;
+//   Box window = Box::fromCorners(I32Point(492, 468), I32Point(494, 470));
+//   for (int y = window.top(); y <= window.bottom(); y++) {
+//     for (int x = window.left(); x <= window.right(); x++) {
+//       orderWindow.push_back(res.orderImg[Fdomain.pointToIndex(x, y)]);
+//     }
+//   }
+
+//   printImageIntoConsoleWithCast<uint32>(orderWindow, window);
+  
+//   I32Point p{493, 469};
+//   Box fwindowBox = Box::fromCorners(F.emergePoint(I32Point(492, 468)), F.emergePoint(I32Point(494, 470)));
+//   std::vector<uint8> fwindow = {
+//     f[domain.pointToIndex(F.emergePoint(p +  I32Point{-1,-1}))], f[domain.pointToIndex( F.emergePoint(p +  I32Point{ 1,-1}))],
+//     f[domain.pointToIndex(F.emergePoint(p +  I32Point{-1, 1}))], f[domain.pointToIndex( F.emergePoint(p +  I32Point{ 1, 1}))]
+//   };
+  
+//   printImageIntoConsoleWithCast<int>(fwindow, fwindowBox);
+
+//   std::cout << std::endl << std::endl;
+//   printImageIntoConsoleWithCast<int>(f, Box::fromCorners(F.emergePoint(I32Point(44, 512)), F.emergePoint(I32Point(46, 514))));
+
+
+//   for (uint32 n : F.adj()->neighbours(Fdomain.pointToIndex(I32Point(492, 470)))) {
+//     std::cout << Fdomain.indexToPoint(n);
+//   }
+
+//   std::cout << "=========== DONE ================\n";
+
+//   return 0;
+// }
+
+
+int main(int argc, char *argv[]) 
 {
-  using MorphoTree = MorphologicalTree<uint8>;
-  using Grid = KGrid<uint8>;
-
-  int width, height, nchannels;
-  uint8 *data = stbi_load("/mnt/HDD-Ubuntu/documents/phd/code/simple-morph-tree/image/Zuckerberg.pgm", &width, &height, &nchannels, 1);
-
-  std::vector<uint8> f(data, data + (width*height));
-  Box domain = Box::fromSize(UI32Point{width, height});
-
-  
-  Grid F{domain, f};
-  Box Fdomain = F.immerseDomain();
-
-  OrderImageResult<uint8> res = computeOrderImage(domain, f, F);
-
-  MorphoTree tree = buildEnlargedTreeOfShapes(domain, f, F);
-
-  tree.tranverse([&F,&Fdomain](MorphoTree::NodePtr node){ 
-    bool hasCNP = false;
-    for (uint32 cnp : node->cnps()) {
-      if (F.isZeroFace(Fdomain.indexToPoint(cnp))) {
-        hasCNP = true;
-        break;
-      }
-    }
-    if (!hasCNP) {
-      std::cout << "node #" << node->id() << std::endl;
-      for (uint32 p : node->cnps()) {
-        std::cout << "\t" << Fdomain.indexToPoint(p) << "\n";
-      }
-    }
-  });
-
-  // std::vector<uint8> filtered_image = tree.reconstructImage();
-  // stbi_write_png("../image/output.png", domain.width(), domain.height(), 1, (void*)filtered_image.data(), 0);
-  //stbi_write_png("../image/output.png", Fdomain.width(), Fdomain.height(), 1, (void*)res.orderImg.data(), 0);
-  // stbi_image_free(data);
-
-  std::cout << "\nimage window: \n";
-
-
-  std::vector<uint32> orderWindow;
-  Box window = Box::fromCorners(I32Point(492, 468), I32Point(494, 470));
-  for (int y = window.top(); y <= window.bottom(); y++) {
-    for (int x = window.left(); x <= window.right(); x++) {
-      orderWindow.push_back(res.orderImg[Fdomain.pointToIndex(x, y)]);
-    }
-  }
-
-  printImageIntoConsoleWithCast<uint32>(orderWindow, window);
-  
-  I32Point p{493, 469};
-  Box fwindowBox = Box::fromCorners(F.emergePoint(I32Point(492, 468)), F.emergePoint(I32Point(494, 470)));
-  std::vector<uint8> fwindow = {
-    f[domain.pointToIndex(F.emergePoint(p +  I32Point{-1,-1}))], f[domain.pointToIndex( F.emergePoint(p +  I32Point{ 1,-1}))],
-    f[domain.pointToIndex(F.emergePoint(p +  I32Point{-1, 1}))], f[domain.pointToIndex( F.emergePoint(p +  I32Point{ 1, 1}))]
+  std::vector<uint8> f = {
+    0, 0, 0, 0, 0, 0, 0,
+    0, 4, 4, 4, 7, 7, 7, 
+    0, 7, 7, 4, 7, 4, 7,
+    0, 7, 4, 4, 7, 4, 7,
+    0, 4, 4, 4, 7, 4, 7,
+    0, 7, 7, 4, 7, 7, 7,
+    0, 0, 0, 0, 0, 0, 0 
   };
+
+
+  Box domain = Box::fromSize(I32Point{0,0}, UI32Point{7,7});
+  std::unique_ptr<Adjacency> adj = std::make_unique<Adjacency8C>(domain);
+  std::unique_ptr<AttributeComputer<uint32, uint8>> areaComputer = std::make_unique<AreaComputer<uint8>>();
+
+  using TreeType = MorphologicalTree<uint8>;
+  using NodePtr = typename TreeType::NodePtr;
+
+  MorphologicalTree<uint8> tree = buildMaxTree<uint8>(f, std::move(adj));
+
+  // std::vector<uint32> area = areaComputer->computeAttribute(tree);
+
+  std::vector<uint32> area = areaComputer->initAttributes(tree);
+  tree.tranverse([&area, &areaComputer](NodePtr node){ 
+    areaComputer->computeInitialValue(area, node);
+    if (node->parent() != nullptr)
+      areaComputer->mergeToParent(area, node, node->parent());
+  });
   
-  printImageIntoConsoleWithCast<int>(fwindow, fwindowBox);
-
-  std::cout << std::endl << std::endl;
-  printImageIntoConsoleWithCast<int>(f, Box::fromCorners(F.emergePoint(I32Point(44, 512)), F.emergePoint(I32Point(46, 514))));
-
-
-  for (uint32 n : F.adj()->neighbours(Fdomain.pointToIndex(I32Point(492, 470)))) {
-    std::cout << Fdomain.indexToPoint(n);
-  }
-
-  std::cout << "=========== DONE ================\n";
-
-  return 0;
+  tree.traverseByLevel([&area, &domain](NodePtr node) {
+    std::cout << "area[" << node->id() << "] = " << area[node->id()] << "\n";
+    printImageIntoConsoleWithCast<int32>(node->reconstruct(domain), domain);
+    std::cout << "\n";
+  });
+ 
 }
