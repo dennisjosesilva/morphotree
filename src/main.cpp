@@ -26,6 +26,7 @@
 
 #include "morphotree/attributes/attributeComputer.hpp"
 #include "morphotree/attributes/areaComputer.hpp"
+#include "morphotree/attributes/perimeterComputer.hpp"
 
 #include <map>
 
@@ -411,23 +412,34 @@ int main(int argc, char *argv[])
   Box domain = Box::fromSize(I32Point{0,0}, UI32Point{7,7});
   std::unique_ptr<Adjacency> adj = std::make_unique<Adjacency8C>(domain);
   std::unique_ptr<AttributeComputer<uint32, uint8>> areaComputer = std::make_unique<AreaComputer<uint8>>();
+  // std::unique_ptr<AttributeComputer<uint32, uint8>> perimeterComputer 
+  //   = std::make_unique<MaxTreePerimeterComputer<uint8>>(domain, f);
+  std::unique_ptr<AttributeComputer<uint32, uint8>> perimeterComputer
+    = std::make_unique<MinTreePerimeterComputer<uint8>>(domain, f);
+  
 
   using TreeType = MorphologicalTree<uint8>;
   using NodePtr = typename TreeType::NodePtr;
 
-  MorphologicalTree<uint8> tree = buildMaxTree<uint8>(f, std::move(adj));
+  //MorphologicalTree<uint8> tree = buildMaxTree<uint8>(f, std::move(adj));
+  MorphologicalTree<uint8> tree = buildMinTree<uint8>(f, std::move(adj));
 
-  // std::vector<uint32> area = areaComputer->computeAttribute(tree);
-
+  
   std::vector<uint32> area = areaComputer->initAttributes(tree);
-  tree.tranverse([&area, &areaComputer](NodePtr node){ 
+  std::vector<uint32> perimeter = perimeterComputer->initAttributes(tree);
+  tree.tranverse([&area, &perimeter, &perimeterComputer, &areaComputer](NodePtr node){ 
     areaComputer->computeInitialValue(area, node);
-    if (node->parent() != nullptr)
+    perimeterComputer->computeInitialValue(perimeter, node);
+
+    if (node->parent() != nullptr){
       areaComputer->mergeToParent(area, node, node->parent());
+      perimeterComputer->mergeToParent(perimeter, node, node->parent());
+    }
   });
   
-  tree.traverseByLevel([&area, &domain](NodePtr node) {
+  tree.traverseByLevel([&area, &perimeter, &domain](NodePtr node) {
     std::cout << "area[" << node->id() << "] = " << area[node->id()] << "\n";
+    std::cout << "perimeter[" << node->id() << "] = " << perimeter[node->id()] << "\n";
     printImageIntoConsoleWithCast<int32>(node->reconstruct(domain), domain);
     std::cout << "\n";
   });

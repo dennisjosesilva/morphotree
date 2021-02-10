@@ -85,7 +85,7 @@ namespace morphotree
   {    
     for (uint32 pidx : node->cnps()) {
       int32 H = 0, L = 0;
-      I32Point p = domain_.pointToIndex(pidx);
+      I32Point p = domain_.indexToPoint(pidx);
       for (const I32Point& offset : offsets_) {
         I32Point q = p + offset;
         if (!domain_.contains(q) || image_[domain_.pointToIndex(q)] < node->level()) {
