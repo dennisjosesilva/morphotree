@@ -1,5 +1,14 @@
 #include "mtreepy.hpp"
 
+void bindMorphoTreeType(py::module &m)
+{
+  py::enum_<mt::MorphoTreeType>(m, "MorphoTreeType")
+    .value("MaxTree", mt::MorphoTreeType::MaxTree)
+    .value("MinTree", mt::MorphoTreeType::MinTree)
+    .value("TreeOfShapes", mt::MorphoTreeType::TreeOfShapes);
+}
+
+
 void bindFoundamentalTypeMTNode(py::module &m)
 {
   bindMTNode<mt::uint8>(m, "UI8");

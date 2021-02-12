@@ -386,10 +386,9 @@ namespace morphotree
   template<class WeightType>
   MorphologicalTree<WeightType> MorphologicalTree<WeightType>::copy() const
   {
-    MorphologicalTree ctree;
+    MorphologicalTree ctree{type_};
     ctree.nodes_.reserve(numberOfNodes());
     ctree.cmap_ = cmap_;
-    ctree.type_ = type_;
 
     for (NodePtr node : nodes_) {
       ctree.nodes_.push_back(node->copy());

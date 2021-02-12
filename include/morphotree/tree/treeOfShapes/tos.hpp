@@ -142,6 +142,6 @@ namespace morphotree
       }
     }); 
 
-    return MTree{std::move(cmap), std::move(nodes)};
+    return MTree{treeOfShapes.type(), std::move(cmap), std::move(nodes)};
   }
 }

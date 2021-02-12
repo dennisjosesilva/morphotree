@@ -128,6 +128,7 @@ PYBIND11_MODULE(morphotreepy, m)
     .def_readwrite("parent", &mt::CTBuilderResult::parent)
     .def_readwrite("R", &mt::CTBuilderResult::R);
 
+  bindMorphoTreeType(m);
   bindFoundamentalTypeCTBuilder(m);
   bindFoundamentalTypeMTNode(m);
   bindFoundamentalTypeMorphologicalTree(m);

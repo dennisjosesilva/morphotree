@@ -33,7 +33,7 @@ template<typename T>
 py::array MorphologicalTreeReconstructImage(mt::MorphologicalTree<T> *tree, 
   const mt::Box &domain);
 
-
+void bindMorphoTreeType(py::module &m);
 
 void bindFoundamentalTypeMTNode(py::module &m);
 
@@ -112,8 +112,8 @@ void bindMorphologicalTree(py::module &m, const std::string& type)
 {
   std::string className = type + "MorphologicalTree";
   py::class_<mt::MorphologicalTree<T>>(m, className.c_str())
-    .def(py::init<>())
-    .def(py::init<const std::vector<T>&, const mt::CTBuilderResult&>())
+    .def(py::init<mt::MorphoTreeType>())
+    .def(py::init<mt::MorphoTreeType, const std::vector<T>&, const mt::CTBuilderResult&>())
     .def("node", py::overload_cast<mt::uint32>(&mt::MorphologicalTree<T>::node))
     .def_property_readonly("root", py::overload_cast<>(&mt::MorphologicalTree<T>::root, py::const_))
     .def("reconstructNode", py::overload_cast<mt::uint32>(&mt::MorphologicalTree<T>::reconstructNode, py::const_))
