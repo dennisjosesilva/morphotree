@@ -15,6 +15,13 @@
 
 namespace morphotree
 {
+  enum class MorphoTreeType
+  {
+    MaxTree,
+    MinTree,
+    TreeOfShapes
+  };
+
   template<class WeightType>
   class MTNode
   {
@@ -66,9 +73,9 @@ namespace morphotree
     using NodePtr = typename MTNode<WeightType>::NodePtr; 
     using NodeType = MTNode<WeightType>;
 
-    MorphologicalTree(const std::vector<WeightType> &f, const CTBuilderResult &res);
-    MorphologicalTree(std::vector<uint32> &&cmap, std::vector<NodePtr> &&nodes);
-    MorphologicalTree();
+    MorphologicalTree(MorphoTreeType type, const std::vector<WeightType> &f, const CTBuilderResult &res);
+    MorphologicalTree(MorphoTreeType type, std::vector<uint32> &&cmap, std::vector<NodePtr> &&nodes);
+    MorphologicalTree(MorphoTreeType type);
 
     const NodePtr node(uint id) const { return nodes_[id]; }
     NodePtr node(uint id) { return nodes_[id]; }
@@ -99,6 +106,8 @@ namespace morphotree
 
     MorphologicalTree<WeightType> copy() const;
 
+    inline MorphoTreeType type() const { return type_; }
+
   private:
     void performDirectFilter(MorphologicalTree<WeightType> &tree, std::function<bool(const NodePtr)> keep) const;
 
@@ -106,6 +115,7 @@ namespace morphotree
     std::vector<NodePtr> nodes_;
     std::vector<uint32> cmap_;
     NodePtr root_;
+    MorphoTreeType type_;
   };
 
   template<class WeightType> 
@@ -176,19 +186,22 @@ namespace morphotree
 
   // ========================== [TREEE] =========================================================================
   template<class WeightType>
-  MorphologicalTree<WeightType>::MorphologicalTree()
+  MorphologicalTree<WeightType>::MorphologicalTree(MorphoTreeType type)
+    :type_{type}
   { }
 
   template<class WeightType>
-  MorphologicalTree<WeightType>::MorphologicalTree(std::vector<uint32> &&cmap, std::vector<NodePtr> &&nodes)
-    :cmap_{cmap}, nodes_{nodes}
+  MorphologicalTree<WeightType>::MorphologicalTree(MorphoTreeType type, 
+    std::vector<uint32> &&cmap, std::vector<NodePtr> &&nodes)
+    :cmap_{cmap}, nodes_{nodes}, type_{type}
   {
     root_ = nodes_[0];
   }
 
   template<class WeightType>
-  MorphologicalTree<WeightType>::MorphologicalTree(const std::vector<WeightType> &f, 
-    const CTBuilderResult &res)
+  MorphologicalTree<WeightType>::MorphologicalTree(MorphoTreeType type, 
+    const std::vector<WeightType> &f,  const CTBuilderResult &res)
+    :type_{type}
   {
     const uint32 UNDEF = std::numeric_limits<uint32>::max();
     std::vector<uint32> sortedLevelRoots;
@@ -250,7 +263,7 @@ namespace morphotree
   {
     CTBuilder<WeightType> builder;
     std::vector<uint32> R = sortIncreasing(f);
-    return MorphologicalTree<WeightType>(f, builder.build(f, adj, R));
+    return MorphologicalTree<WeightType>(MorphoTreeType::MaxTree, f, builder.build(f, adj, R));
   }
 
   template<class WeightType>
@@ -259,7 +272,7 @@ namespace morphotree
   {
     CTBuilder<WeightType> builder;
     std::vector<uint32> R = sortDecreasing(f);
-    return MorphologicalTree<WeightType>(f, builder.build(f, adj, R));
+    return MorphologicalTree<WeightType>(MorphoTreeType::MinTree, f, builder.build(f, adj, R));
   }
 
   template<typename WeightType>
@@ -376,6 +389,7 @@ namespace morphotree
     MorphologicalTree ctree;
     ctree.nodes_.reserve(numberOfNodes());
     ctree.cmap_ = cmap_;
+    ctree.type_ = type_;
 
     for (NodePtr node : nodes_) {
       ctree.nodes_.push_back(node->copy());

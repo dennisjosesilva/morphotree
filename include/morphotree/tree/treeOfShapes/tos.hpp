@@ -55,7 +55,8 @@ namespace morphotree
   {
     OrderImageResult<WeightType> orderRes = computeOrderImage(domain, f, kgrid, pInfty);
     CTBuilder<uint32> builder;
-    return MorphologicalTree<uint32>{orderRes.orderImg, builder.build(orderRes.orderImg, kgrid.adj(), orderRes.R)};
+    return MorphologicalTree<uint32>{MorphoTreeType::MaxTree, 
+      orderRes.orderImg, builder.build(orderRes.orderImg, kgrid.adj(), orderRes.R)};
   }
 
   template<class WeightType>
@@ -74,7 +75,8 @@ namespace morphotree
   {
     OrderImageResult<WeightType> orderRes = computeOrderImage(domain, f, kgrid, pInfty);
     CTBuilder<uint32> builder;
-    return MorphologicalTree<WeightType>{orderRes.flattern, builder.build(orderRes.orderImg, kgrid.adj(), orderRes.R)};
+    return MorphologicalTree<WeightType>{MorphoTreeType::TreeOfShapes,
+      orderRes.flattern, builder.build(orderRes.orderImg, kgrid.adj(), orderRes.R)};
   }
 
   template<class WeightType>
@@ -93,8 +95,8 @@ namespace morphotree
   {
     OrderImageResult<WeightType> orderRes = computeOrderImage(domain, f, kgrid, pInfty);
     CTBuilder<uint32> builder;
-    return emergeTreeOfShapes(kgrid, MorphologicalTree<WeightType>{orderRes.flattern, 
-      builder.build(orderRes.orderImg, kgrid.adj(), orderRes.R)}); 
+    return emergeTreeOfShapes(kgrid, MorphologicalTree<WeightType>{MorphoTreeType::TreeOfShapes,
+      orderRes.flattern, builder.build(orderRes.orderImg, kgrid.adj(), orderRes.R)}); 
   }
 
   template<class WeightType>

@@ -27,6 +27,7 @@
 #include "morphotree/attributes/attributeComputer.hpp"
 #include "morphotree/attributes/areaComputer.hpp"
 #include "morphotree/attributes/perimeterComputer.hpp"
+#include "morphotree/attributes/bitquads/quadCountComputer.hpp"
 
 #include <map>
 
@@ -414,34 +415,41 @@ int main(int argc, char *argv[])
   std::unique_ptr<AttributeComputer<uint32, uint8>> areaComputer = std::make_unique<AreaComputer<uint8>>();
   // std::unique_ptr<AttributeComputer<uint32, uint8>> perimeterComputer 
   //   = std::make_unique<MaxTreePerimeterComputer<uint8>>(domain, f);
-  std::unique_ptr<AttributeComputer<uint32, uint8>> perimeterComputer
-    = std::make_unique<MinTreePerimeterComputer<uint8>>(domain, f);
+  // std::unique_ptr<AttributeComputer<uint32, uint8>> perimeterComputer
+  //   = std::make_unique<MinTreePerimeterComputer<uint8>>(domain, f);
+  std::unique_ptr<AttributeComputer<Quads, uint8>> quadsComputer = 
+    std::make_unique<CTreeQuadCountsComputer<uint8>>(domain, f, "../resource/quads/dt-min-tree-8c.dat");
   
 
   using TreeType = MorphologicalTree<uint8>;
   using NodePtr = typename TreeType::NodePtr;
 
-  //MorphologicalTree<uint8> tree = buildMaxTree<uint8>(f, std::move(adj));
   MorphologicalTree<uint8> tree = buildMinTree<uint8>(f, std::move(adj));
+  //MorphologicalTree<uint8> tree = buildMinTree<uint8>(f, std::move(adj));
 
-  
-  std::vector<uint32> area = areaComputer->initAttributes(tree);
-  std::vector<uint32> perimeter = perimeterComputer->initAttributes(tree);
-  tree.tranverse([&area, &perimeter, &perimeterComputer, &areaComputer](NodePtr node){ 
-    areaComputer->computeInitialValue(area, node);
-    perimeterComputer->computeInitialValue(perimeter, node);
+  std::vector<Quads> quads = quadsComputer->computeAttribute(tree);
 
-    if (node->parent() != nullptr){
-      areaComputer->mergeToParent(area, node, node->parent());
-      perimeterComputer->mergeToParent(perimeter, node, node->parent());
-    }
-  });
+  // std::vector<uint32> area = areaComputer->initAttributes(tree);
+  // std::vector<uint32> perimeter = perimeterComputer->initAttributes(tree);
+  // tree.tranverse([&area, &perimeter, &perimeterComputer, &areaComputer](NodePtr node){ 
+  //   areaComputer->computeInitialValue(area, node);
+  //   perimeterComputer->computeInitialValue(perimeter, node);
+
+  //   if (node->parent() != nullptr){
+  //     areaComputer->mergeToParent(area, node, node->parent());
+  //     perimeterComputer->mergeToParent(perimeter, node, node->parent());
+  //   }
+  // });
   
-  tree.traverseByLevel([&area, &perimeter, &domain](NodePtr node) {
-    std::cout << "area[" << node->id() << "] = " << area[node->id()] << "\n";
-    std::cout << "perimeter[" << node->id() << "] = " << perimeter[node->id()] << "\n";
-    printImageIntoConsoleWithCast<int32>(node->reconstruct(domain), domain);
-    std::cout << "\n";
-  });
+   tree.traverseByLevel([&quads, &domain](NodePtr node) {
+     std::cout << "area[" << node->id() << "] = " << quads[node->id()].area() << "\n";
+     std::cout << "perimeter[" << node->id() << "] = " << quads[node->id()].perimeter() << "\n";
+
+    // std::cout << "q1: " << quads[node->id()].q1() << ", q2: " << quads[node->id()].q2() << ", q3: " << quads[node->id()].q3()
+    //   << ", q4: " << quads[node->id()].q4() << ", qd: " << quads[node->id()].qd() << std::endl;
+
+     printImageIntoConsoleWithCast<int32>(node->reconstruct(domain), domain);
+     std::cout << "\n";
+   });
  
 }

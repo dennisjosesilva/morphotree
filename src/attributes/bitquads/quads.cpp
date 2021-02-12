@@ -8,12 +8,12 @@ namespace morphotree
 
   uint32 Quads::area() const 
   {
-    return (q1_/4) + (q2_/2) + (qd_/2) + (3*q3_/4) + q4_;
+    return (q1_ + 2*q2_ + 2*qd_ + 3*q3_ + 4*q4_)/4;
   }
 
   uint32 Quads::perimeter() const
   {
-    return q1_ + q2_ + 2*q3_ + 2*qd_;
+    return q1_ + q2_ + q3_ + 2*qd_;
   }
 
   float Quads::continuousArea() const 

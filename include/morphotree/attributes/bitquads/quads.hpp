@@ -50,8 +50,19 @@ namespace morphotree
       uint32 numberOfHoles4C() const;
       uint32 numberOfHoles8C() const;
       
+      const static uint32 P1 = 0;
+      const static uint32 P2 = 1;
+      const static uint32 P3 = 2;
+      const static uint32 P4 = 3;
+      const static uint32 PD = 4;
+
+      const static uint32 P1T = 5;
+      const static uint32 P2T = 6;
+      const static uint32 P3T = 7;
+      const static uint32 PDT = 8;
+
     private:
-      const static float ONE_OVER_SQRT_TWO = 0.70710678f;
+      constexpr static float ONE_OVER_SQRT_TWO = 0.70710678f;
 
       uint32 q1_;
       uint32 q2_;
