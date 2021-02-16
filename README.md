@@ -20,7 +20,7 @@ directory and creating the conan package using the following commands:
  
  The first line create a directory called build to store the binaries of the compiled code and enter in it. The second line generate the conan cmake file 
  to be included in your main CMakeLists.txt. The third line runs cmake and the fourth line builds the library and the executable "morphotreemain". This
- executable is just a example program showing simple a simple example of usage of the morphotree library.
+ executable is just an example program showing a simple example of usage of the morphotree library.
  
  If you want to install morphotree library in your Conan system, we can run:
  
@@ -53,7 +53,7 @@ directory and creating the conan package using the following commands:
  $ python setup.py build
  ```
  
- It will generate a directory named "build" and a dinamyc library which provides the morphotree library in python (its name in python is morphotreepy). If
+ It will generate a directory named "build" and a dynamic library which provides the morphotree library in python (its name in python is morphotreepy). If
  you want to install it in your Python packages, you can run:
  
  ```shellscript
