@@ -53,4 +53,11 @@ directory and creating the conan package using the following commands:
  $ python setup.py build
  ```
  
- It will generate a directory named "build" and a dinamyc library which provides the morphotree library in python (its name in python is morphotreepy).
+ It will generate a directory named "build" and a dinamyc library which provides the morphotree library in python (its name in python is morphotreepy). If
+ you want to install it in your Python packages, you can run:
+ 
+ ```shellscript
+ $ python setup.py install
+ ```
+ 
+A example of code in python can be found in this <a href="http://www.vision.ime.usp.br/~dennis/hidden/morphotree-demo.html">page.</a> 
