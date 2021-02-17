@@ -6,6 +6,8 @@
 #include <string>
 #include <sstream>
 
+#include "core/opaque_types.hpp"
+
 namespace py = pybind11;
 namespace mt = morphotree;
 

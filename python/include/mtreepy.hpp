@@ -4,6 +4,7 @@
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
 #include <pybind11/numpy.h>
+#include "core/opaque_types.hpp"
 
 #include "morphotree/tree/mtree.hpp"
 
@@ -128,7 +129,8 @@ void bindMorphologicalTree(py::module &m, const std::string& type)
     .def("directFilter", &mt::MorphologicalTree<T>::directFilter)
     .def("tranverseByLevel", py::overload_cast<std::function<void(typename mt::MorphologicalTree<T>::NodePtr)>>(&mt::MorphologicalTree<T>::traverseByLevel))
     .def("smallComponent", &mt::MorphologicalTree<T>::smallComponent)
-    .def("copy", &mt::MorphologicalTree<T>::copy);;
+    .def("copy", &mt::MorphologicalTree<T>::copy)
+    .def_property_readonly("type", &mt::MorphologicalTree<T>::type);
 
   std::string maxtreeName = type + "buildMaxTree";
   m.def(maxtreeName.c_str(), &mt::buildMaxTree<T>);

@@ -4,6 +4,7 @@
 #include <pybind11/stl.h>
 
 #include "morphotree/tree/treeOfShapes/order_image.hpp"
+#include "core/opaque_types.hpp"
 
 #include <string>
 #include <sstream>

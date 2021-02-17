@@ -5,6 +5,7 @@
 
 #include "morphotree/tree/treeOfShapes/kgrid.hpp"
 
+#include "core/opaque_types.hpp"
 
 #include <string>
 #include <sstream>

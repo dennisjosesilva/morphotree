@@ -4,6 +4,7 @@
 #include <pybind11/stl.h>
 
 #include "morphotree/tree/treeOfShapes/tos.hpp"
+#include "core/opaque_types.hpp"
 
 namespace py = pybind11;
 namespace mt = morphotree;

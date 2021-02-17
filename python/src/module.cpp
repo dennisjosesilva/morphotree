@@ -23,6 +23,8 @@
 #include "tree/treeOfShapes/order_imagepy.hpp"
 
 #include "tree/treeOfShapes/tospy.hpp"
+#include "attributes/attributeComputerpy.hpp"
+#include "core/opaque_types.hpp"
 
 namespace py = pybind11;
 namespace mt = morphotree;
@@ -30,6 +32,12 @@ namespace mt = morphotree;
 PYBIND11_MODULE(morphotreepy, m) 
 {
   m.doc() = "Simple prototyping morphological tree library.";
+
+  py::bind_vector<std::vector<mt::uint8>>(m, "UI8Vector");
+  py::bind_vector<std::vector<mt::int8>>(m, "I8Vector");
+  py::bind_vector<std::vector<mt::uint32>>(m, "UI32Vector");
+  py::bind_vector<std::vector<mt::int32>>(m, "I32Vector");
+
 
   bindFoundamentalTypePoints(m);
 
@@ -147,4 +155,11 @@ PYBIND11_MODULE(morphotreepy, m)
   bindFoundamentalTypeBuildEnlargedTreeOfShapes(m);
   bindFoundamentalTypeBuildTreeOfShapes(m);
   bindFoundamentalTypeEmergeTreeOfShapes(m);
+
+  // attributes
+  bindFoundamentalTypeAttributeComputer(m);
+  bindFoundamentalTypeAreaComputer(m);
+  bindFoundamentalTypeMaxTreePerimeterComputer(m);
+  bindFoundamentalTypeMinTreePerimeterComputer(m);
+  
 }

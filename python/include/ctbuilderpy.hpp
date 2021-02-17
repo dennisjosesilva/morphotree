@@ -3,6 +3,7 @@
 #include "morphotree/tree/ct_builder.hpp"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include "core/opaque_types.hpp"
 
 namespace py = pybind11;
 namespace mt = morphotree;
