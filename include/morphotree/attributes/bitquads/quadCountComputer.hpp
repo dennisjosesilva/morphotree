@@ -7,8 +7,6 @@
 #include <fstream>
 #include <array>
 
-#include <iostream>
-
 namespace morphotree 
 {
   template<class ValueType>
@@ -56,7 +54,7 @@ namespace morphotree
     const std::vector<ValueType> &image, const std::string &dtFilename)
     :domain_{domain}, image_{image}
   {
-    readDecisionTree(dtFilename);
+    readDecisionTree(dtFilename);    
   } 
 
   template<class ValueType>
@@ -116,7 +114,6 @@ namespace morphotree
     }
 
     int32 idt = std::stoi(coding, 0, 3);
-    //std::cout << idt << " -> " << coding << "    " << (int)dt_[idt][0] << "  " << (int)dt_[idt][1] << "  " << (int)dt_[idt][2]  << std::endl;
     return dt_[idt];
   }
 

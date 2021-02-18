@@ -24,6 +24,7 @@
 
 #include "tree/treeOfShapes/tospy.hpp"
 #include "attributes/attributeComputerpy.hpp"
+#include "attributes/bitquads/quadCountComputerpy.hpp"
 #include "core/opaque_types.hpp"
 
 namespace py = pybind11;
@@ -37,8 +38,7 @@ PYBIND11_MODULE(morphotreepy, m)
   py::bind_vector<std::vector<mt::int8>>(m, "I8Vector");
   py::bind_vector<std::vector<mt::uint32>>(m, "UI32Vector");
   py::bind_vector<std::vector<mt::int32>>(m, "I32Vector");
-
-
+  
   bindFoundamentalTypePoints(m);
 
   py::class_<mt::ForwardBoxScan>(m, "ForwardBoxScan")
@@ -161,5 +161,8 @@ PYBIND11_MODULE(morphotreepy, m)
   bindFoundamentalTypeAreaComputer(m);
   bindFoundamentalTypeMaxTreePerimeterComputer(m);
   bindFoundamentalTypeMinTreePerimeterComputer(m);
-  
+
+  bindQuadsVector(m);
+  bindQuads(m);
+  bindFoundamentalTypesCTreeQuadCountsComputer(m);
 }
