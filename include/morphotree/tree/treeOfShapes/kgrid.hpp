@@ -357,8 +357,8 @@ namespace morphotree
   template<class ValueType>
   bool KGrid<ValueType>::isOneFace(const I32Point &p) const
   {
-    return (((p.x() - domain_.left()) % 2) == 1) && (((p.y() - domain_.top()) % 2) == 0) || 
-      (((p.x() - domain_.left()) % 2) == 0) && (((p.y() - domain_.top()) % 2) == 1);
+    return ((((p.x() - domain_.left()) % 2) == 1) && (((p.y() - domain_.top()) % 2) == 0)) || 
+      ((((p.x() - domain_.left()) % 2) == 0) && (((p.y() - domain_.top()) % 2) == 1));
   }
 
   template<class ValueType>

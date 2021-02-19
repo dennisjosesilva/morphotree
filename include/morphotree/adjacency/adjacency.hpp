@@ -9,5 +9,7 @@ namespace morphotree
   {
   public:
     virtual std::vector<uint32> neighbours(uint32 v) const = 0;
+
+    virtual ~Adjacency() {}
   };
 }
