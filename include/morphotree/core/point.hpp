@@ -48,12 +48,12 @@ namespace morphotree
     T  operator[](uint32 idx) const { return data_[idx]; }
     T& operator[](uint32 idx) { return data_[idx]; }
 
-    inline Point<T> add(const Point<T> &p) const { return Point<T>{x() + p.x(), y() + p.y()}; }
-    inline Point<T> sub(const Point<T> &p) const { return Point<T>{x() - p.x(), y() - p.y()}; }
-    inline Point<T> mult(float val) const { return Point<T>{x() * (T)val, y() * (T)val}; }
-    inline Point<T> mult(const Point<T> &p) const { return Point<T>{x() * p.x(), y() * p.y()}; }
-    inline Point<T> div(float val) const { return Point<T>{x() / (T)val, y() / (T)val}; }
-    inline Point<T> div(const Point<T> &p) const { return Point<T>{x() / p.x(), y() / p.y()}; }
+    inline Point<T> add(const Point<T> &p) const { return Point<T>(x() + p.x(), y() + p.y()); }
+    inline Point<T> sub(const Point<T> &p) const { return Point<T>(x() - p.x(), y() - p.y()); }
+    inline Point<T> mult(float val) const { return Point<T>(x() * (T)val, y() * (T)val); }
+    inline Point<T> mult(const Point<T> &p) const { return Point<T>(x() * p.x(), y() * p.y()); }
+    inline Point<T> div(float val) const { return Point<T>(x() / (T)val, y() / (T)val); }
+    inline Point<T> div(const Point<T> &p) const { return Point<T>(x() / p.x(), y() / p.y()); }
 
     inline void iadd(const Point<T> &p) { x() += p.x(); y() += p.y(); }
     inline void isub(const Point<T> &p) { x() -= p.x(); y() -= p.y(); }

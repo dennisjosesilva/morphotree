@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.12)
+
+Set(CXX clang++)
 
 project(morphotreepy)
 
@@ -12,11 +14,16 @@ set(CMAKE_CXX_STANDARD 14 CACHE STRING "C++ version selection")  # or 11, 14, 17
 set(CMAKE_CXX_STANDARD_REQUIRED ON)  # optional, ensure standard is supported
 set(CMAKE_CXX_EXTENSIONS OFF)  # optional, keep compiler extensionsn off
 
-
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
 find_package(pybind11 REQUIRED)
+
+add_compile_options(-Wc++11-narrowing )
+
+#if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+#    add_compile_options(-Wnoc++11-narrowing )
+#endif()
 
 pybind11_add_module(morphotreepy 
   src/pointpy.cpp  
