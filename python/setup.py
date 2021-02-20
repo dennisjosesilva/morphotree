@@ -56,10 +56,7 @@ class CMakeBuild(build_ext):
     if not os.path.exists(self.build_temp):
       os.makedirs(self.build_temp)
 
-
-    cmake_args += ["-DCMAKE_C_COMPILER=clang", "-DCMAKE_CXX_COMPILER=clang++"]
-
-    subprocess.check_call(["conan", "install", ext.sourcedir + "/" + ext.name, "--profile", "clang"], cwd=self.build_temp, env=env)
+    subprocess.check_call(["conan", "install", ext.sourcedir + "/" + ext.name], cwd=self.build_temp, env=env)
     subprocess.check_call(["cmake", ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
     subprocess.check_call(["cmake", "--build", "."] + build_args, cwd=self.build_temp)
     self.move_output(ext)

@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
 
-Set(CXX clang++)
-
 project(morphotreepy)
 
 # include(../morphotree.cmake)
@@ -18,8 +16,6 @@ include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
 find_package(pybind11 REQUIRED)
-
-add_compile_options(-Wc++11-narrowing )
 
 #if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 #    add_compile_options(-Wnoc++11-narrowing )
