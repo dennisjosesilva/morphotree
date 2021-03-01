@@ -19,6 +19,12 @@ namespace morphotree
     const Box &domain, const std::vector<WeightType> &f,
     I32Point pInfty= I32Point{0,0});
 
+  template<class WeightType>
+  MorphologicalTree<uint32> buildOrderImageMaxtree(
+    const OrderImageResult<WeightType> &orderRes, const KGrid<WeightType> &kgrid,
+    I32Point pInfty = I32Point{0,0});
+
+
   // build enlarged tree of shapes (using flattern image)
   template<class WeightType>
   MorphologicalTree<WeightType> buildEnlargedTreeOfShapes(
@@ -30,6 +36,11 @@ namespace morphotree
     const Box &domain, const std::vector<WeightType> &f,
     I32Point pInfty = I32Point{0,0});
 
+  template<class WeightType>
+  MorphologicalTree<WeightType> buildEnlargedTreeOfShapes(
+    const OrderImageResult<WeightType> &orderRes, const KGrid<WeightType> &kgrid,
+    I32Point pInfty = I32Point{0, 0});
+
   // build tree of shapes by emerging all nodes.
   template<class WeightType>
   MorphologicalTree<WeightType> buildTreeOfShapes(
@@ -39,6 +50,11 @@ namespace morphotree
   template<class WeightType>
   MorphologicalTree<WeightType> buildTreeOfShapes(
     const Box &domain, const std::vector<WeightType> &f,
+    I32Point pInfty = I32Point{0,0});
+
+  template<class WeightType>
+  MorphologicalTree<WeightType> buildTreeOfShapes(
+    const OrderImageResult<WeightType> &orderRes, const KGrid<WeightType> &kgrid,
     I32Point pInfty = I32Point{0,0});
 
   // emerge tree of shapes or max-tree of order image.
@@ -67,12 +83,27 @@ namespace morphotree
     return buildOrderImageMaxtree(domain, f, kgrid, pInfty);    
   }
   
+  template<class WeightType>
+  MorphologicalTree<uint32> buildOrderImageMaxtree(
+    const OrderImageResult<WeightType> &orderRes, const KGrid<WeightType> &kgrid,
+    I32Point pInfty)
+  {
+    const std::vector<uint32>& orderImage = orderRes.orderImg;
+    const std::vector<uint32>& R = orderRes.R;
+    const std::vector<WeightType> &flattern = orderRes.flattern; 
+
+    CTBuilder<uint32> builder;
+    return MorphologicalTree<uint32>(MorphoTreeType::MaxTree, 
+      orderImage, builder.build(orderImage, kgrid.adj(), R));
+  }
+
+
   // Build enlarged tree of shapes
   template<class WeightType>
   MorphologicalTree<WeightType> buildEnlargedTreeOfShapes(const Box &domain, 
     const std::vector<WeightType> &f, const KGrid<WeightType> &kgrid,
     I32Point pInfty)
-  {
+  { 
     OrderImageResult<WeightType> orderRes = computeOrderImage(domain, f, kgrid, pInfty);
     CTBuilder<uint32> builder;
     return MorphologicalTree<WeightType>{MorphoTreeType::TreeOfShapes,
@@ -87,6 +118,20 @@ namespace morphotree
     return buildEnlargedTreeOfShapes(domain, f, kgrid, pInfty);
   } 
 
+  template<class WeightType>
+  MorphologicalTree<WeightType> buildEnlargedTreeOfShapes(
+    const OrderImageResult<WeightType> &orderRes, const KGrid<WeightType> &kgrid,
+    I32Point pInfty)
+  {
+    const std::vector<uint32>& orderImage = orderRes.orderImg;
+    const std::vector<uint32>& R = orderRes.R;
+    const std::vector<WeightType> &flattern = orderRes.flattern; 
+
+    CTBuilder<uint32> builder;
+    return MorphologicalTree<WeightType>{MorphoTreeType::TreeOfShapes,
+      flattern, builder.build(orderImage, kgrid.adj(), R)};
+  }
+  
   // build tree of shapes by emerging all nodes.  
   template<class WeightType>
   MorphologicalTree<WeightType> buildTreeOfShapes(const Box &domain, 
@@ -105,6 +150,20 @@ namespace morphotree
   {
     KGrid<WeightType> kgrid{domain, f};
     return buildTreeOfShapes(domain, f, kgrid, pInfty);
+  }
+
+  template<class WeightType>
+  MorphologicalTree<WeightType> buildTreeOfShapes(
+    const OrderImageResult<WeightType> &orderRes, const KGrid<WeightType> &kgrid,
+    I32Point pInfty)
+  {
+    const std::vector<uint32>& orderImage = orderRes.orderImg;
+    const std::vector<uint32>& R = orderRes.R;
+    const std::vector<WeightType> &flattern = orderRes.flattern; 
+
+    CTBuilder<uint32> builder;
+    return emergeTreeOfShapes(kgrid, MorphologicalTree<WeightType>{ MorphoTreeType::TreeOfShapes,
+      flattern, builder.build(orderImage, kgrid.adj(), R)});
   }
 
   template<class WeightType>

@@ -31,6 +31,7 @@ pybind11_add_module(morphotreepy
   src/tree/treeOfShapes/tospy.cpp
   src/attributes/attributeComputerpy.cpp
   src/attributes/bitquads/quadCountComputerpy.cpp
+  src/attributes/bitquads/quadCountTreeOfShapesComputerpy.cpp
   src/module.cpp)
   
 target_link_libraries(morphotreepy PRIVATE ${CONAN_LIBS})

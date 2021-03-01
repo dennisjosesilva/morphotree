@@ -3,6 +3,7 @@
 #include "morphotree/core/alias.hpp"
 #include <ostream>
 #include <array>
+#include <limits>
 
 namespace morphotree
 {
@@ -17,6 +18,8 @@ namespace morphotree
     Point(T c1, T c2)
       :data_{c1, c2}
     {}
+
+    static const Point<T> UndefinedPoint;
 
     // cols
     inline T  x() const { return data_[0]; }
@@ -104,6 +107,9 @@ namespace morphotree
   std::ostream& operator<<(std::ostream &out, const Point<T> &p) { 
     return out << "(" << p.x() << ", " << p.y() << ")";
   }
+
+  template<class T>
+  const Point<T> Point<T>::UndefinedPoint = Point<T>(std::numeric_limits<T>::max(), std::numeric_limits<T>::max());
 
   using UI32Point = Point<uint32>;
   using UI8Point = Point<uint8>;

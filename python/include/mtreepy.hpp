@@ -128,7 +128,7 @@ void bindMorphologicalTree(py::module &m, const std::string& type)
     .def("idirectFilter", &mt::MorphologicalTree<T>::idirectFilter)
     .def("directFilter", &mt::MorphologicalTree<T>::directFilter)
     .def("tranverseByLevel", py::overload_cast<std::function<void(typename mt::MorphologicalTree<T>::NodePtr)>>(&mt::MorphologicalTree<T>::traverseByLevel))
-    .def("smallComponent", &mt::MorphologicalTree<T>::smallComponent)
+    .def("smallComponent",  py::overload_cast<mt::uint32>(&mt::MorphologicalTree<T>::smallComponent))
     .def("copy", &mt::MorphologicalTree<T>::copy)
     .def_property_readonly("type", &mt::MorphologicalTree<T>::type);
 

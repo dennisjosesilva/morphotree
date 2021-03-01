@@ -7,7 +7,7 @@ class Morphotree(ConanFile):
   description = "A Morphological tree prototyping library"
   settings = "os", "compiler", "build_type", "arch"
   options = {"shared": [True, False], "compiler": ["gcc", "clang"]}
-  default_options = {"shared": False, "compiler": "clang"}
+  default_options = {"shared": False, "compiler": "gcc"}
   generators = "cmake"
   #exports_sources = "src/*"
 

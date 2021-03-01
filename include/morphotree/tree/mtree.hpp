@@ -103,6 +103,7 @@ namespace morphotree
     void traverseByLevel(std::function<void(NodePtr)> visit);
 
     inline NodePtr smallComponent(uint32 idx) { return nodes_[cmap_[idx]]; }
+    inline const NodePtr smallComponent(uint32 idx) const { return nodes_[cmap_[idx]]; }
 
     MorphologicalTree<WeightType> copy() const;
 

@@ -25,6 +25,7 @@
 #include "tree/treeOfShapes/tospy.hpp"
 #include "attributes/attributeComputerpy.hpp"
 #include "attributes/bitquads/quadCountComputerpy.hpp"
+#include "attributes/bitquads/quadCountTreeOfShapesComputerpy.hpp"
 #include "core/opaque_types.hpp"
 
 namespace py = pybind11;
@@ -53,7 +54,7 @@ PYBIND11_MODULE(morphotreepy, m)
     .def("next", &mt::BackwardBoxScan::next)
     .def_property_readonly("hasFinished", &mt::BackwardBoxScan::hasFinished);
   
-  py::class_<mt::Box>(m, "Box")
+  py::class_<mt::Box> boxClass = py::class_<mt::Box>(m, "Box")
     .def(py::init<mt::I32Point, mt::I32Point>(), py::arg("topleft"), py::arg("bottomright"))
     .def_static("fromCorners", &mt::Box::fromCorners, py::arg("topleft"), py::arg("bottomright"))
     .def_static("fromSize", py::overload_cast<mt::I32Point, mt::UI32Point>(&mt::Box::fromSize), py::arg("topleft"), py::arg("size"))
@@ -68,6 +69,8 @@ PYBIND11_MODULE(morphotreepy, m)
     .def_property_readonly("width", &mt::Box::width)
     .def_property_readonly("height", &mt::Box::height)
     .def_property_readonly("numberOfPoints", &mt::Box::numberOfPoints)
+    .def("subBoxFromCorners", &mt::Box::subBoxFromCorners)
+    .def("subBoxFromSize", &mt::Box::subBoxFromSize)
     .def("contains", &mt::Box::contains)
     .def("pointToIndex", py::overload_cast<const mt::I32Point&>(&mt::Box::pointToIndex, py::const_))
     .def("pointToIndex", py::overload_cast<mt::int32, mt::int32>(&mt::Box::pointToIndex, py::const_))
@@ -81,6 +84,30 @@ PYBIND11_MODULE(morphotreepy, m)
       ss << b;
       return ss.str();
      });
+
+  py::class_<mt::Box::SubBox>(boxClass, "SubBox")
+    .def_readonly_static("UndefinedIndex", &mt::Box::SubBox::UndefinedIndex)
+    .def_property_readonly("topleft", &mt::Box::SubBox::topleft)
+    .def_property_readonly("bottomright", &mt::Box::SubBox::bottomright)
+    .def_property_readonly("top", &mt::Box::SubBox::top)
+    .def_property_readonly("left", &mt::Box::SubBox::left)
+    .def_property_readonly("bottom", &mt::Box::SubBox::bottom)
+    .def_property_readonly("right", &mt::Box::SubBox::right)
+    .def("contains", &mt::Box::SubBox::contains)
+    .def("pointToIndex", py::overload_cast<const mt::I32Point&>(&mt::Box::SubBox::pointToIndex, py::const_))
+    .def("pointToIndex", py::overload_cast<mt::int32, mt::int32>(&mt::Box::SubBox::pointToIndex, py::const_))
+    .def("indexToPoint", &mt::Box::SubBox::indexToPoint)
+    .def("pointToLocalIndex", py::overload_cast<const mt::I32Point&>(&mt::Box::SubBox::pointToIndex, py::const_))
+    .def("pointToLocalIndex", py::overload_cast<mt::int32, mt::int32>(&mt::Box::SubBox::pointToLocalIndex, py::const_))
+    .def("localIndexToPoint", &mt::Box::SubBox::localIndexToPoint)
+    .def("localIndexToIndex", &mt::Box::SubBox::localIndexToIndex)
+    .def("indexToLocalIndex", &mt::Box::SubBox::indexToLocalIndex)
+    .def("at", &mt::Box::SubBox::at)
+    .def("__getitem__", py::overload_cast<mt::uint32>(&mt::Box::SubBox::operator[], py::const_))
+    .def_property_readonly("size", &mt::Box::SubBox::size)
+    .def_property_readonly("width", &mt::Box::SubBox::width)
+    .def_property_readonly("height", &mt::Box::SubBox::height)
+    .def_property_readonly("numberOfPoints", &mt::Box::SubBox::numberOfPoints);
 
   m.def("UI32STLsortIndex", &mt::STLsortIndex<mt::uint32>)
     .def("UI8STLsortIndex", &mt::STLsortIndex<mt::uint8>)
@@ -165,4 +192,9 @@ PYBIND11_MODULE(morphotreepy, m)
   bindQuadsVector(m);
   bindQuads(m);
   bindFoundamentalTypesCTreeQuadCountsComputer(m);
+
+  // attributes Tree of Shapes
+  bindWindowMaxTreeNode(m);
+  bindWindowMaxTree(m);
+  bindFoundamentalTypesTreeOfShapesQuadCountsComputer(m);
 }

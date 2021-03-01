@@ -7,4 +7,3 @@ cmake
 
 [options]
 morphotree:shared=True
-morphotree:compiler=clang

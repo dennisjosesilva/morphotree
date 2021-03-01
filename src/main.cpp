@@ -24,10 +24,12 @@
 #include <iomanip>
 #include <functional>
 
+#include "morphotree/tree/treeOfShapes/order_image.hpp"
 #include "morphotree/attributes/attributeComputer.hpp"
 #include "morphotree/attributes/areaComputer.hpp"
 #include "morphotree/attributes/perimeterComputer.hpp"
 #include "morphotree/attributes/bitquads/quadCountComputer.hpp"
+#include "morphotree/attributes/bitquads/quadCountTreeOfShapesComputer.hpp"
 
 #include <map>
 
@@ -409,45 +411,136 @@ int main(int argc, char *argv[])
     0, 0, 0, 0, 0, 0, 0 
   };
 
+  // std::vector<uint8> f = {
+  //     3, 3, 3, 3, 3, 3, 3,
+  //     3, 4, 4, 4, 4, 4, 3, 
+  //     3, 4, 2, 2, 2, 4, 3,
+  //     3, 4, 2, 4, 2, 4, 3,
+  //     3, 4, 4, 2, 2, 4, 3,
+  //     3, 4, 4, 4, 4, 4, 3,
+  //     3, 3, 3, 3, 3, 3, 3 
+  // };
+
+  // std::vector<uint8> f = {
+  //     3, 3, 3, 3, 3, 3, 3,
+  //     3, 4, 4, 4, 4, 4, 3, 
+  //     3, 4, 7, 4, 7, 4, 3,
+  //     3, 4, 7, 4, 7, 4, 3,
+  //     3, 4, 4, 7, 7, 4, 3,
+  //     3, 4, 4, 4, 4, 4, 3,
+  //     3, 3, 3, 3, 3, 3, 3 
+  // };
+
+
 
   Box domain = Box::fromSize(I32Point{0,0}, UI32Point{7,7});
-  std::unique_ptr<Adjacency> adj = std::make_unique<Adjacency8C>(domain);
-  std::unique_ptr<AttributeComputer<uint32, uint8>> areaComputer = std::make_unique<AreaComputer<uint8>>();
-  // std::unique_ptr<AttributeComputer<uint32, uint8>> perimeterComputer 
-  //   = std::make_unique<MaxTreePerimeterComputer<uint8>>(domain, f);
-  std::unique_ptr<AttributeComputer<uint32, uint8>> perimeterComputer
-    = std::make_unique<MinTreePerimeterComputer<uint8>>(domain, f);
-  std::unique_ptr<AttributeComputer<Quads, uint8>> quadsComputer = 
-    std::make_unique<CTreeQuadCountsComputer<uint8>>(domain, f, "../resource/quads/dt-min-tree-8c.dat");
+
+  //Box::SubBox subDomain = domain.subBoxFromSize(I32Point{6,2}, UI32Point{3,3});
+
+  // printImageIntoConsoleWithCast<int32>(f, domain);
+  // std::cout << std::endl;
+  // printImageIntoConsoleWithCast<int32>(f, subDomain);
+
+
+  KGrid<uint8> F{domain, f};
+  OrderImageResult<uint8> r = computeOrderImage(domain, f, F);   
+  
+  Box idomain = F.immerseDomain();
+
+  // Box::SubBox subDomain = idomain.subBoxFromSize(I32Point{6,2}, UI32Point{3,3});
+
+  printImageIntoConsoleWithCast<int32>(r.orderImg, idomain);
+  std::cout << std::endl;
+  // printImageIntoConsoleWithCast<int32>(r.orderImg, subDomain);
+
+  // WindowMaxTree wtree{r.orderImg, F.adj()};
+  // wtree.build(subDomain);
+
+  // std::cout << "\n";
+  // wtree.tranverse([](const WindowMaxTreeNode &node) {
+  //   std::cout << "id: " << (int)node.id() << ", size: " << (int)node.size() << "\n";
+  // });
+
+  MorphologicalTree<uint8> etos = buildEnlargedTreeOfShapes(r, F);
+  std::unique_ptr<AttributeComputer<Quads, uint8>> quadsComp = 
+    std::make_unique<TreeOfShapesQuadCountsComputer<uint8>>(F, r.orderImg);
+
+  std::vector<Quads> quads = quadsComp->computeAttribute(etos);
+
+  MorphologicalTree<uint8> tos = emergeTreeOfShapes(F, etos);
+
+  using TreeType = decltype(tos);
+
+  tos.tranverse([&quads, &domain](TreeType::NodePtr node) {
+    std::cout << "id: " << node->id() << std::endl;
+    std::cout << "Q1: " << quads[node->id()].q1() << std::endl;
+    std::cout << "Q2: " << quads[node->id()].q2() << std::endl;
+    std::cout << "Q3: " << quads[node->id()].q3() << std::endl;
+    std::cout << "QD: " << quads[node->id()].qd() << std::endl;
+    std::cout << "Q4: " << quads[node->id()].q4() << std::endl;
+    
+    printImageIntoConsoleWithCast<int32>(node->reconstruct(domain), domain);
+    std::cout << std::endl;
+  });
+
+  std::cout << "Finished." << std::endl;
+
+  // Box::SubBox wDomain = Fdomain.subBoxFromSize(I32Point{8,2}, UI32Point{3,3});
+  // std::cout << "\n1st: 3 x 3 window" << std::endl;
+  // printImageIntoConsole(r.orderImg, wDomain);
+
+  // WindowMaxTree wtree{r.orderImg, F.adj()};
+
+  // wtree.build(wDomain);
+  // wtree.tranverse([&wDomain](const WindowMaxTreeNode &node){ 
+  //    std::cout << "area[" << wDomain.indexToPoint(node.representative()) << "] = " << (int)node.size() << "\n"; 
+  // });
+  
+  // Box::SubBox wDomain2 = Fdomain.subBoxFromSize(I32Point{2,4}, UI32Point{3,3});
+  // std::cout << "\n2nd: 3 x 3 window" << std::endl;
+  // printImageIntoConsole(r.orderImg, wDomain2);
+  // wtree.build(wDomain2);
+  // wtree.tranverse([&wDomain2](const WindowMaxTreeNode &node){ 
+  //    std::cout << "area[" << wDomain2.indexToPoint(node.representative()) << "] = " << (int)node.size() << "\n"; 
+  // });
+  
+  // std::unique_ptr<Adjacency> adj = std::make_unique<Adjacency8C>(domain);
+  // std::unique_ptr<AttributeComputer<uint32, uint8>> areaComputer = std::make_unique<AreaComputer<uint8>>();
+  // // std::unique_ptr<AttributeComputer<uint32, uintnode8>> perimeterComputer 
+  // //   = std::make_unique<MaxTreePerimeterComputer<uint8>>(domain, f);
+  // std::unique_ptr<AttributeComputer<uint32, uint8>> perimeterComputer
+  //   = std::make_unique<MinTreePerimeterComputer<uint8>>(domain, f);
+  // std::unique_ptr<AttributeComputer<Quads, uint8>> quadsComputer = 
+  //   std::make_unique<CTreeQuadCountsComputer<uint8>>(domain, f, "../resource/quads/dt-min-tree-8c.dat");
   
 
-  using TreeType = MorphologicalTree<uint8>;
-  using NodePtr = typename TreeType::NodePtr;
+  // using TreeType = MorphologicalTree<uint8>;
+  // using NodePtr = typename TreeType::NodePtr;
 
-  MorphologicalTree<uint8> tree = buildMinTree<uint8>(f, std::move(adj));
+  // MorphologicalTree<uint8> tree = buildMinTree<uint8>(f, std::move(adj));
   //MorphologicalTree<uint8> tree = buildMinTree<uint8>(f, std::move(adj));
 
-  std::vector<Quads> quads = quadsComputer->computeAttribute(tree);
+  // std::vector<Quads> quads = quadsComputer->computeAttribute(tree);
 
-  std::vector<uint32> area = areaComputer->initAttributes(tree);
-  std::vector<uint32> perimeter = perimeterComputer->initAttributes(tree);
-  tree.tranverse([&area, &perimeter, &perimeterComputer, &areaComputer](NodePtr node){ 
-    areaComputer->computeInitialValue(area, node);
-    perimeterComputer->computeInitialValue(perimeter, node);
+  // std::vector<uint32> area = areaComputer->initAttributes(tree);
+  // std::vector<uint32> perimeter = perimeterComputer->initAttributes(tree);
+  // tree.tranverse([&area, &perimeter, &perimeterComputer, &areaComputer](NodePtr node){ 
+  //   areaComputer->computeInitialValue(area, node);
+  //   perimeterComputer->computeInitialValue(perimeter, node);
 
-    if (node->parent() != nullptr){
-      areaComputer->mergeToParent(area, node, node->parent());
-      perimeterComputer->mergeToParent(perimeter, node, node->parent());
-    }
-  });
+  //   if (node->parent() != nullptr){
+  //     areaComputer->mergeToParent(area, node, node->parent());
+  //     perimeterComputer->mergeToParent(perimeter, node, node->parent());
+  //   }
+  // });
   
-  tree.traverseByLevel([&area, &perimeter, &domain](NodePtr node) {
-     std::cout << "area[" << node->id() << "] = " << area[node->id()] << "\n";
-     std::cout << "perimeter[" << node->id() << "] = " << perimeter[node->id()] << "\n";
+  // tree.traverseByLevel([&area, &perimeter, &domain](NodePtr node) {
+  //    std::cout << "area[" << node->id() << "] = " << area[node->id()] << "\n";
+  //    std::cout << "perimeter[" << node->id() << "] = " << perimeter[node->id()] << "\n";
 
-     printImageIntoConsoleWithCast<int32>(node->reconstruct(domain), domain);
-     std::cout << "\n";
-   });
+  //    printImageIntoConsoleWithCast<int32>(node->reconstruct(domain), domain);
+  //    std::cout << "\n";
+  //  });
 
   //  tree.traverseByLevel([&quads, &domain](NodePtr node) {
   //    std::cout << "area[" << node->id() << "] = " << quads[node->id()].area() << "\n";

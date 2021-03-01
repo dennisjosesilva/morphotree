@@ -2,39 +2,49 @@
 
 namespace morphotree
 {
+  const  uint32 Quads::P1 = 0;
+  const  uint32 Quads::P2 = 1;
+  const  uint32 Quads::P3 = 2;
+  const  uint32 Quads::P4 = 3;
+  const  uint32 Quads::PD = 4;
+  const  uint32 Quads::P1T = 5;
+  const  uint32 Quads::P2T = 6;
+  const  uint32 Quads::P3T = 7;
+  const  uint32 Quads::PDT = 8;
+
   Quads::Quads()
-    :q1_{0}, q2_{0}, qd_{0}, q3_{0}, q4_{0}
+    :quads_{0,0,0,0,0}
   {}
 
   uint32 Quads::area() const 
   {
-    return (q1_ + 2*q2_ + 2*qd_ + 3*q3_ + 4*q4_)/4;
+    return (q1() + 2*q2() + 2*qd() + 3*q3() + 4*q4())/4;
   }
 
   uint32 Quads::perimeter() const
   {
-    return q1_ + q2_ + q3_ + 2*qd_;
+    return q1() + q2() + q3() + 2*qd();
   }
 
   float Quads::continuousArea() const 
   {
-    return (float(q1_)/8.0f) + (float(q2_)/2.0f) + (float(qd_) * 3.0f/4.0f) 
-      + (float(q3_) * 7.0f/8.0f)  + float(q4_);
+    return (float(q1())/8.0f) + (float(q2())/2.0f) + (float(qd()) * 3.0f/4.0f) 
+      + (float(q3()) * 7.0f/8.0f)  + float(q4());
   }
 
   float Quads::continuousPerimeter() const 
   {
-    return float(q2_) + (float(q1_) + float(q3_) + 2.0f*float(qd_)) * ONE_OVER_SQRT_TWO;
+    return float(q2()) + (float(q1()) + float(q3()) + 2.0f*float(qd())) * ONE_OVER_SQRT_TWO;
   }
 
   uint32 Quads::eulerNumber4C() const 
   {
-    return (q1_ - q3_ + 2*qd_) / 4; 
+    return (q1() - q3() + 2*qd()) / 4; 
   }
 
   uint32 Quads::eulerNumber8C() const
   {
-    return (q1_ - q3_ - 2*qd_) / 4; 
+    return (q1() - q3() - 2*qd()) / 4; 
   }
  
  uint32 Quads::numberOfHoles4C() const
