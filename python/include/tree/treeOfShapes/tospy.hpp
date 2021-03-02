@@ -35,7 +35,7 @@ void bindBuildOrderImageMaxTree(py::module &m, const std::string &type)
     py::overload_cast<const mt::Box&, const std::vector<T>&, const mt::KGrid<T>&, mt::I32Point>(&mt::buildOrderImageMaxtree<T>), 
     py::arg("domain"), py::arg("f"), py::arg("kgrid"), py::arg("pInfty") = mt::I32Point{0,0});
   m.def(functionName.c_str(),
-    static_cast<mt::MorphologicalTree<mt::uint32>(*)(const mt::Box&, const std::vector<T>&, mt::I32Point)>(&mt::buildOrderImageMaxtree),
+    py::overload_cast<const mt::Box&, const std::vector<T>&, mt::I32Point>(&mt::buildOrderImageMaxtree<T>), 
     py::arg("domain"), py::arg("f"), py::arg("pInfty") = mt::I32Point{0,0});
   m.def(functionName.c_str(),
     py::overload_cast<const mt::OrderImageResult<T>&, const mt::KGrid<T>&, mt::I32Point>(&mt::buildOrderImageMaxtree<T>),
