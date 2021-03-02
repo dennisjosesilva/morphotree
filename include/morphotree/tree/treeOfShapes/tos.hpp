@@ -7,7 +7,6 @@
 
 namespace morphotree 
 {
-  
   // build max-tree of the order image
   template<class WeightType>
   MorphologicalTree<uint32> buildOrderImageMaxtree(
@@ -166,7 +165,7 @@ namespace morphotree
       flattern, builder.build(orderImage, kgrid.adj(), R)});
   }
 
-  template<class WeightType>
+  template<class WeightType> 
   MorphologicalTree<WeightType> emergeTreeOfShapes(
     const KGrid<WeightType> &grid,
     const MorphologicalTree<WeightType> &treeOfShapes)
