@@ -75,7 +75,7 @@ namespace morphotree
   }
 
   template<class WeightType>
-  MorphologicalTree<WeightType> buildOrderImageMaxtree(const Box &domain, 
+  MorphologicalTree<uint32> buildOrderImageMaxtree(const Box &domain, 
     const std::vector<WeightType> &f, I32Point pInfty)
   {
     KGrid<WeightType> kgrid{domain, f};
