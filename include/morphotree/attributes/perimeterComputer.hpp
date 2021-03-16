@@ -51,7 +51,7 @@ namespace morphotree
 
     std::vector<uint32> initAttributes(const TreeType &tree);
     void computeInitialValue(std::vector<uint32> &attr, NodePtr node);
-    void mergeToParent(std::vector<uint32> &attr, NodePtr node, NodePtr parent);
+    void mergeToParent(std::vector<uint32> &attr, NodePtr node, NodePtr parent);    
 
   private:
     const std::array<I32Point, 4> offsets_ = {

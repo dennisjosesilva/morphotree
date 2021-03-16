@@ -16,6 +16,9 @@
 #include "morphotree/tree/treeOfShapes/order_image.hpp"
 #include "morphotree/tree/treeOfShapes/tos.hpp"
 
+#include "morphotree/attributes/smoothnessContourComputer.hpp"
+
+
 #include <iostream>
 #include <memory>
 
@@ -442,15 +445,15 @@ int main(int argc, char *argv[])
   // printImageIntoConsoleWithCast<int32>(f, subDomain);
 
 
-  KGrid<uint8> F{domain, f};
-  OrderImageResult<uint8> r = computeOrderImage(domain, f, F);   
+  // KGrid<uint8> F{domain, f};
+  // OrderImageResult<uint8> r = computeOrderImage(domain, f, F);   
   
-  Box idomain = F.immerseDomain();
+  // Box idomain = F.immerseDomain();
 
   // Box::SubBox subDomain = idomain.subBoxFromSize(I32Point{6,2}, UI32Point{3,3});
 
-  printImageIntoConsoleWithCast<int32>(r.orderImg, idomain);
-  std::cout << std::endl;
+  // printImageIntoConsoleWithCast<int32>(r.orderImg, idomain);
+  // std::cout << std::endl;
   // printImageIntoConsoleWithCast<int32>(r.orderImg, subDomain);
 
   // WindowMaxTree wtree{r.orderImg, F.adj()};
@@ -461,29 +464,29 @@ int main(int argc, char *argv[])
   //   std::cout << "id: " << (int)node.id() << ", size: " << (int)node.size() << "\n";
   // });
 
-  MorphologicalTree<uint8> etos = buildEnlargedTreeOfShapes(r, F);
-  std::unique_ptr<AttributeComputer<Quads, uint8>> quadsComp = 
-    std::make_unique<TreeOfShapesQuadCountsComputer<uint8>>(F, r.orderImg);
+  // MorphologicalTree<uint8> etos = buildEnlargedTreeOfShapes(r, F);
+  // std::unique_ptr<AttributeComputer<Quads, uint8>> quadsComp = 
+  //   std::make_unique<TreeOfShapesQuadCountsComputer<uint8>>(F, r.orderImg);
 
-  std::vector<Quads> quads = quadsComp->computeAttribute(etos);
+  // std::vector<Quads> quads = quadsComp->computeAttribute(etos);
 
-  MorphologicalTree<uint8> tos = emergeTreeOfShapes(F, etos);
+  // MorphologicalTree<uint8> tos = emergeTreeOfShapes(F, etos);
 
-  using TreeType = decltype(tos);
+  // using TreeType = decltype(tos);
 
-  tos.tranverse([&quads, &domain](TreeType::NodePtr node) {
-    std::cout << "id: " << node->id() << std::endl;
-    std::cout << "Q1: " << quads[node->id()].q1() << std::endl;
-    std::cout << "Q2: " << quads[node->id()].q2() << std::endl;
-    std::cout << "Q3: " << quads[node->id()].q3() << std::endl;
-    std::cout << "QD: " << quads[node->id()].qd() << std::endl;
-    std::cout << "Q4: " << quads[node->id()].q4() << std::endl;
+  // tos.tranverse([&quads, &domain](TreeType::NodePtr node) {
+  //   std::cout << "id: " << node->id() << std::endl;
+  //   std::cout << "Q1: " << quads[node->id()].q1() << std::endl;
+  //   std::cout << "Q2: " << quads[node->id()].q2() << std::endl;
+  //   std::cout << "Q3: " << quads[node->id()].q3() << std::endl;
+  //   std::cout << "QD: " << quads[node->id()].qd() << std::endl;
+  //   std::cout << "Q4: " << quads[node->id()].q4() << std::endl;
     
-    printImageIntoConsoleWithCast<int32>(node->reconstruct(domain), domain);
-    std::cout << std::endl;
-  });
+  //   printImageIntoConsoleWithCast<int32>(node->reconstruct(domain), domain);
+  //   std::cout << std::endl;
+  // });
 
-  std::cout << "Finished." << std::endl;
+  // std::cout << "Finished." << std::endl;
 
   // Box::SubBox wDomain = Fdomain.subBoxFromSize(I32Point{8,2}, UI32Point{3,3});
   // std::cout << "\n1st: 3 x 3 window" << std::endl;
@@ -552,5 +555,22 @@ int main(int argc, char *argv[])
   //    printImageIntoConsoleWithCast<int32>(node->reconstruct(domain), domain);
   //    std::cout << "\n";
   //  });
- 
+  
+  std::unique_ptr<Adjacency> adj = std::make_unique<Adjacency8C>(domain);
+  // MorphologicalTree<uint8> tree = buildMaxTree(f, std::move(adj));
+  MorphologicalTree<uint8> tree = buildMinTree(f, std::move(adj));
+
+  std::unique_ptr<AttributeComputer<float, uint8>> scComputer = 
+    std::make_unique<MinTreeSmoothnessContourComputer<uint8>>(domain, f);
+
+  std::vector<float> sc = scComputer->computeAttribute(tree);
+
+  using MTree = decltype(tree);
+  using NodePtr = typename MTree::NodePtr;
+
+  tree.tranverse([&sc, &f, &domain](const NodePtr node) {
+    std::cout << "node id: " << node->id() << std::endl;
+    std::cout << "smoothness: " << sc[node->id()] << std::endl;
+    printImageIntoConsoleWithCast<int32>(node->reconstruct(domain) , domain);
+  });
 }

@@ -17,6 +17,7 @@ namespace morphotree
     virtual std::vector<AttrType> initAttributes(const TreeType &tree) = 0;
     virtual void computeInitialValue(std::vector<AttrType> &attr, NodePtr node) = 0;
     virtual void mergeToParent(std::vector<AttrType> &attr, NodePtr node, NodePtr parent) = 0;
+    virtual void finaliseComputation(std::vector<AttrType> &attr, NodePtr node) {}
 
     virtual ~AttributeComputer() {}
   };
@@ -35,6 +36,8 @@ namespace morphotree
       this->computeInitialValue(attr, node);
       if (node->parent() != nullptr)
         this->mergeToParent(attr, node, node->parent());
+
+      this->finaliseComputation(attr, node);
     });
 
     return attr;
