@@ -26,6 +26,7 @@
 #include "attributes/attributeComputerpy.hpp"
 #include "attributes/bitquads/quadCountComputerpy.hpp"
 #include "attributes/bitquads/quadCountTreeOfShapesComputerpy.hpp"
+#include "attributes/smoothnessContourComputerpy.hpp"
 #include "core/opaque_types.hpp"
 
 namespace py = pybind11;
@@ -197,4 +198,9 @@ PYBIND11_MODULE(morphotreepy, m)
   bindWindowMaxTreeNode(m);
   bindWindowMaxTree(m);
   bindFoundamentalTypesTreeOfShapesQuadCountsComputer(m);
+
+  // smoothness contour
+  bindFoundamentalTypeMaxTreeSmoothnessContourComputer(m);
+  bindFoundamentalTypeMinTreeSmoothnessContourComputer(m);
+  bindFoundamentalTypeTreeOfShapesSmoothnessContourComputer(m);
 }

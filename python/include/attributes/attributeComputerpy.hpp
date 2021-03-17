@@ -80,7 +80,8 @@ void bindAttributeComputer(py::module &m, const std::string &attrType, const std
     .def("computeAttribute", &mt::AttributeComputer<AttrType, ValueType>::computeAttribute)
     .def("initAttributes", &mt::AttributeComputer<AttrType, ValueType>::initAttributes)
     .def("computeInitialValue", &mt::AttributeComputer<AttrType, ValueType>::computeInitialValue)
-    .def("mergeToParent", &mt::AttributeComputer<AttrType, ValueType>::mergeToParent);
+    .def("mergeToParent", &mt::AttributeComputer<AttrType, ValueType>::mergeToParent)
+    .def("finaliseComputation", &mt::AttributeComputer<AttrType, ValueType>::finaliseComputation);
 }
 
 
