@@ -558,10 +558,13 @@ int main(int argc, char *argv[])
   
   std::unique_ptr<Adjacency> adj = std::make_unique<Adjacency8C>(domain);
   // MorphologicalTree<uint8> tree = buildMaxTree(f, std::move(adj));
-  MorphologicalTree<uint8> tree = buildMinTree(f, std::move(adj));
+  //MorphologicalTree<uint8> tree = buildMinTree(f, std::move(adj));
+  MorphologicalTree<uint8> tree = buildTreeOfShapes(domain, f);
 
+  // std::unique_ptr<AttributeComputer<float, uint8>> scComputer = 
+  //   std::make_unique<MinTreeSmoothnessContourComputer<uint8>>(domain, f);
   std::unique_ptr<AttributeComputer<float, uint8>> scComputer = 
-    std::make_unique<MinTreeSmoothnessContourComputer<uint8>>(domain, f);
+    std::make_unique<TreeOfShapesSmoothnessContourComputer<uint8>>(domain, f);
 
   std::vector<float> sc = scComputer->computeAttribute(tree);
 
