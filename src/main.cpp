@@ -33,6 +33,7 @@
 #include "morphotree/attributes/perimeterComputer.hpp"
 #include "morphotree/attributes/bitquads/quadCountComputer.hpp"
 #include "morphotree/attributes/bitquads/quadCountTreeOfShapesComputer.hpp"
+#include "morphotree/attributes/volumeComputer.hpp"
 
 #include <map>
 
@@ -557,23 +558,32 @@ int main(int argc, char *argv[])
   //  });
   
   std::unique_ptr<Adjacency> adj = std::make_unique<Adjacency8C>(domain);
-  // MorphologicalTree<uint8> tree = buildMaxTree(f, std::move(adj));
-  //MorphologicalTree<uint8> tree = buildMinTree(f, std::move(adj));
-  MorphologicalTree<uint8> tree = buildTreeOfShapes(domain, f);
+  MorphologicalTree<uint8> tree = buildMaxTree(f, std::move(adj));
+  // //MorphologicalTree<uint8> tree = buildMinTree(f, std::move(adj));
+  // MorphologicalTree<uint8> tree = buildTreeOfShapes(domain, f);
 
+  // // std::unique_ptr<AttributeComputer<float, uint8>> scComputer = 
+  // //   std::make_unique<MinTreeSmoothnessContourComputer<uint8>>(domain, f);
   // std::unique_ptr<AttributeComputer<float, uint8>> scComputer = 
-  //   std::make_unique<MinTreeSmoothnessContourComputer<uint8>>(domain, f);
-  std::unique_ptr<AttributeComputer<float, uint8>> scComputer = 
-    std::make_unique<TreeOfShapesSmoothnessContourComputer<uint8>>(domain, f);
+  //   std::make_unique<TreeOfShapesSmoothnessContourComputer<uint8>>(domain, f);
 
-  std::vector<float> sc = scComputer->computeAttribute(tree);
+  // std::vector<float> sc = scComputer->computeAttribute(tree);
 
   using MTree = decltype(tree);
   using NodePtr = typename MTree::NodePtr;
 
-  tree.tranverse([&sc, &f, &domain](const NodePtr node) {
-    std::cout << "node id: " << node->id() << std::endl;
-    std::cout << "smoothness: " << sc[node->id()] << std::endl;
-    printImageIntoConsoleWithCast<int32>(node->reconstruct(domain) , domain);
-  });
+  // tree.tranverse([&sc, &f, &domain](const NodePtr node) {
+  //   std::cout << "node id: " << node->id() << std::endl;
+  //   std::cout << "smoothness: " << sc[node->id()] << std::endl;
+  //   printImageIntoConsoleWithCast<int32>(node->reconstruct(domain) , domain);
+  // });
+
+  std::vector<float> volume = std::make_unique<MaxTreeVolumeComputer<uint8>>()->computeAttribute(tree);
+
+  tree.traverseByLevel([&volume, &domain](NodePtr node) {
+    std::cout << "V(" << node->id() << ") = " << volume[node->id()] << "\n";
+    printImageIntoConsoleWithCast<int32>(node->reconstruct(domain), domain);
+    std::cout << "\n";
+  }); 
+
 }
