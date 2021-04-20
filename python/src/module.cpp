@@ -27,6 +27,7 @@
 #include "attributes/bitquads/quadCountComputerpy.hpp"
 #include "attributes/bitquads/quadCountTreeOfShapesComputerpy.hpp"
 #include "attributes/smoothnessContourComputerpy.hpp"
+#include "attributes/volumeComputerpy.hpp"
 #include "core/opaque_types.hpp"
 
 namespace py = pybind11;
@@ -189,6 +190,7 @@ PYBIND11_MODULE(morphotreepy, m)
   bindFoundamentalTypeAreaComputer(m);
   bindFoundamentalTypeMaxTreePerimeterComputer(m);
   bindFoundamentalTypeMinTreePerimeterComputer(m);
+  bindFoundamentalTypesMaxTreeVolumeComputer(m);
 
   bindQuadsVector(m);
   bindQuads(m);
