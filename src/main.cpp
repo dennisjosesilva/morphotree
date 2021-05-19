@@ -35,6 +35,10 @@
 #include "morphotree/attributes/bitquads/quadCountTreeOfShapesComputer.hpp"
 #include "morphotree/attributes/volumeComputer.hpp"
 
+
+#include "morphotree/filtering/globalOptimiser/GlobalOptimisationFilter.hpp"
+#include "morphotree/filtering/globalOptimiser/MinCPerimeterWithMSE.hpp"
+
 #include <map>
 
 using namespace morphotree;
@@ -578,12 +582,36 @@ int main(int argc, char *argv[])
   //   printImageIntoConsoleWithCast<int32>(node->reconstruct(domain) , domain);
   // });
 
-  std::vector<float> volume = std::make_unique<MaxTreeVolumeComputer<uint8>>()->computeAttribute(tree);
+  // std::vector<float> volume = std::make_unique<MaxTreeVolumeComputer<uint8>>()->computeAttribute(tree);
 
-  tree.traverseByLevel([&volume, &domain](NodePtr node) {
-    std::cout << "V(" << node->id() << ") = " << volume[node->id()] << "\n";
+  // tree.traverseByLevel([&volume, &domain](NodePtr node) {
+  //   std::cout << "V(" << node->id() << ") = " << volume[node->id()] << "\n";
+  //   printImageIntoConsoleWithCast<int32>(node->reconstruct(domain), domain);
+  //   std::cout << "\n";
+  // });
+
+  MinCPerimeterWithMSE<MTree::TreeWeightType> filter{domain, f, 
+    "../resource/quads/dt-max-tree-8c.dat", tree, 50.f};
+
+  std::vector<Quads> quads = CTreeQuadCountsComputer<uint8>(domain, f, 
+    "../resource/quads/dt-max-tree-8c.dat").computeAttribute(tree);
+
+  // tree.traverseByLevel([&f, &domain, &quads](NodePtr node){
+  //   std::cout << "node.id = " << node->id() << std::endl;
+  //   std::cout << "cperimeter = " << quads[node->id()].continuousPerimeter() << "\n";
+  //   printImageIntoConsoleWithCast<int32>(node->reconstruct(domain), domain);
+  //   std::cout << std::endl;
+  // });
+
+  MTree ftree = filter.filter(155.f);
+
+  std::cout << "perimeter: " << filter.criterion() << std::endl;
+  std::cout << "squared error: " << filter.constraint() << std::endl; 
+
+  ftree.traverseByLevel([&f, &domain, &quads](NodePtr node){
+    std::cout << "node.id = " << node->id() << std::endl;
+    std::cout << "cperimeter = " << quads[node->id()].continuousPerimeter() << "\n";
     printImageIntoConsoleWithCast<int32>(node->reconstruct(domain), domain);
-    std::cout << "\n";
-  }); 
-
+    std::cout << std::endl;
+  });
 }

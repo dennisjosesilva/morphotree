@@ -72,6 +72,7 @@ namespace morphotree
   public:
     using NodePtr = typename MTNode<WeightType>::NodePtr; 
     using NodeType = MTNode<WeightType>;
+    using TreeWeightType = WeightType;
 
     MorphologicalTree(MorphoTreeType type, const std::vector<WeightType> &f, const CTBuilderResult &res);
     MorphologicalTree(MorphoTreeType type, std::vector<uint32> &&cmap, std::vector<NodePtr> &&nodes);
@@ -96,7 +97,7 @@ namespace morphotree
     
     void idirectFilter(std::function<bool(const NodePtr)> keep);
 
-    MorphologicalTree<WeightType> directFilter(std::function<bool(const NodePtr)> keep) const;
+    MorphologicalTree<WeightType> directFilter(std::function<bool(const NodePtr)> keep) const;    
 
     void traverseByLevel(std::function<void(const NodePtr)> visit) const;
 
@@ -109,9 +110,11 @@ namespace morphotree
 
     inline MorphoTreeType type() const { return type_; }
 
+    static const uint32 UndefinedIndex;
+
   private:
     void performDirectFilter(MorphologicalTree<WeightType> &tree, std::function<bool(const NodePtr)> keep) const;
-
+    
   private:
     std::vector<NodePtr> nodes_;
     std::vector<uint32> cmap_;
@@ -129,6 +132,9 @@ namespace morphotree
 
 
   // ======================[ IMPLEMENTATION ] ===================================================================
+  template<typename WeightType>
+  const uint32 MorphologicalTree<WeightType>::UndefinedIndex = std::numeric_limits<uint32>::max();
+
   template<class WeightType>
   MTNode<WeightType>::MTNode(uint id)
     :id_{id}, level_{0}, parent_{nullptr}
@@ -348,7 +354,6 @@ namespace morphotree
       newId++;
     }); 
   }
-
 
   template<typename WeightType>
   void MorphologicalTree<WeightType>::traverseByLevel(std::function<void(const NodePtr)> visit) const
