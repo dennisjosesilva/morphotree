@@ -1,6 +1,7 @@
 #pragma once
 
 #include "morphotree/tree/mtree.hpp"
+#include "morphotree/attributes/bitquads/quadCountComputer.hpp"
 
 #include <cmath>
 
