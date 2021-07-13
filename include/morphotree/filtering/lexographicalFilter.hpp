@@ -7,16 +7,16 @@
 namespace morphotree
 {
   template<class ValueType>
-  MorphologicalTree<ValueType> filterTreeLexographical(const MorphologicalTree<ValueType> &tree, 
+  MorphologicalTree<ValueType> filterTreeLexographically(const MorphologicalTree<ValueType> &tree, 
     const std::vector<uint32> &order, uint32 numberOfNodesToBeKept);  
   
   template<class ValueType>
-  void ifilterTreeLexographical(MorphologicalTree<ValueType> &tree, 
+  void ifilterTreeLexographically(MorphologicalTree<ValueType> &tree, 
     const std::vector<uint32> &order, uint32 numberOfNodesToBeKept);
 
   // ========================== [ IMPLEMENTATION ] ================================================
   template<class ValueType>
-  void ifilterTreeLexographical(const MorphologicalTree<ValueType> &tree, 
+  void ifilterTreeLexographically(const MorphologicalTree<ValueType> &tree, 
     const std::vector<uint32> &order, uint32 numberOfNodesToBeKept)
   {
     using NodePtr = typename MorphologicalTree<ValueType>::NodePtr;
@@ -27,7 +27,7 @@ namespace morphotree
   }
 
   template<class ValueType>
-  MorphologicalTree<ValueType> filterTreeLexographical(const MorphologicalTree<ValueType> &tree,
+  MorphologicalTree<ValueType> filterTreeLexographically(const MorphologicalTree<ValueType> &tree,
     const std::vector<uint32> &order, uint32 numberOfNodesToBeKept)
   {
     MorphologicalTree<ValueType> ctree = tree.copy();
