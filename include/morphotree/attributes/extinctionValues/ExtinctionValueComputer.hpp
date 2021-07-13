@@ -2,7 +2,7 @@
 
 #include "morphotree/tree/mtree.hpp"
 #include "morphotree/attributes/attributeComputer.hpp"
-#include "morphotree/attributes/extinction_values/ExtinctionValueLeavesComputer.hpp"
+#include "morphotree/attributes/extinctionValues/ExtinctionValueLeavesComputer.hpp"
 
 #include <limits>
 #include <unordered_map>

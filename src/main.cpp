@@ -3,8 +3,8 @@
 #include <vector>
 // #include "morphotree/filtering/globalOptimiser/MinCPerimeterWithAbsError.hpp"
 
-#include "morphotree/attributes/extinction_values/ExtinctionValueLeavesComputer.hpp"
-#include "morphotree/attributes/extinction_values/ExtinctionValueComputer.hpp"
+#include "morphotree/attributes/extinctionValues/ExtinctionValueLeavesComputer.hpp"
+#include "morphotree/attributes/extinctionValues/ExtinctionValueComputer.hpp"
 #include "morphotree/adjacency/adjacency8c.hpp"
 #include "morphotree/attributes/areaComputer.hpp"
 #include "morphotree/tree/mtree.hpp"
