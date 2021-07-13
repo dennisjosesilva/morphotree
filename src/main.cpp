@@ -3,13 +3,11 @@
 #include <vector>
 // #include "morphotree/filtering/globalOptimiser/MinCPerimeterWithAbsError.hpp"
 
-#include "morphotree/filtering/globalOptimiser/MinCPerimeterWithAbsErrorToS.hpp"
-#include "morphotree/filtering/globalOptimiser/MinCPerimeterWithSquaredErrorToS.hpp"
-
-#include "morphotree/attributes/bitquads/quadCountTreeOfShapesComputer.hpp"
-#include "morphotree/attributes/bitquads/quads.hpp"
+#include "morphotree/attributes/extinction_values/ExtinctionValueLeavesComputer.hpp"
+#include "morphotree/attributes/extinction_values/ExtinctionValueComputer.hpp"
+#include "morphotree/adjacency/adjacency8c.hpp"
+#include "morphotree/attributes/areaComputer.hpp"
 #include "morphotree/tree/mtree.hpp"
-
 #include "morphotree/core/io.hpp"
 
 
@@ -18,40 +16,53 @@ namespace mt = morphotree;
 int main(int argc, char *argv[]) 
 {
   using ValueType = mt::uint8;
+  using ExtinctionValueLeavesComputerType = mt::ExtinctionValueLeavesComputer<ValueType, mt::uint32>;
+  using ExtinctionValueComputerType = mt::ExtinctionValueComputer<ValueType, mt::uint32>;
+  using MTree = mt::MorphologicalTree<mt::uint8>;
+  using NodePtr = MTree::NodePtr;
 
   std::vector<ValueType> f = {
-    0, 0, 0, 0, 0, 0, 0,
-    0, 4, 4, 4, 7, 7, 7,
-    0, 7, 7, 4, 7, 4, 7,
-    0, 7, 4, 4, 7, 4, 7,
-    0, 4, 4, 4, 7, 4, 7,
-    0, 7, 7, 4, 7, 7, 7,
-    0, 0, 0, 0, 0, 0, 0
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0,
+    0, 2, 4, 4, 4, 2, 4, 4, 4, 4, 2, 0,
+    0, 2, 4, 7, 4, 2, 4, 7, 7, 4, 2, 0,
+    0, 2, 4, 4, 4, 2, 4, 4, 4, 4, 2, 0,
+    0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 
   };
 
-  mt::Box domain = mt::Box::fromSize(mt::UI32Point{7, 7});
+  mt::Box domain = mt::Box::fromSize(mt::UI32Point(12, 7));
+    
+  MTree tree = 
+    mt::buildMaxTree(f, std::make_shared<mt::Adjacency8C>(domain));
 
-  float maxError = 0.0f;
-  float percentageApprox = 0.05f;
+  std::vector<mt::uint32> area = mt::AreaComputer<mt::uint8>().computeAttribute(tree);
 
-  mt::uint8 rootLevel = f[0];
-  for (mt::uint32 p = 0; p < domain.numberOfPoints(); p++)
-    maxError += fabsf32(f[p] - rootLevel);
+  ExtinctionValueLeavesComputerType extictionValueComp;
 
-  // mt::MinCPerimeterWithAbsErrorToS<ValueType> filter(domain, f, 5.0f);
-  mt::MinCPerimeterWithSquaredErrorToS<ValueType> filter(domain, f, 5.0f);
+  std::unordered_map<mt::uint32, mt::uint32> extValues = 
+    extictionValueComp.compute(tree, area);
 
-  // std::vector<ValueType> f_filtered = filter.filterWithNormalisedError(0.93f);
-  std::vector<ValueType> f_filtered = filter.filter(170);
+  std::cout << std::endl;
+  for (std::pair<mt::uint32, mt::uint32> keyValue : extValues) {
+    std::cout << "Ex[" << keyValue.first << "] = " << keyValue.second << "\n";
+  }
 
-  std::cout << "squared error: " << filter.squaredError() << "\n"
-            << "sum perimeter: " << filter.fsumPerimeter() << "\n"
-            << "normalised squared error: " << filter.normSquaredError() << "\n"
-            << "sum filtered nodes: " << filter.numPrunnedNodes();
+  using MapType = decltype(extValues);
 
-  std::cout << "\n";
-  mt::printImageIntoConsoleWithCast<mt::int32>(f_filtered, domain);
-  std::cout << "\n";
+  std::vector<mt::uint32> extValuesAttr = 
+    ExtinctionValueComputerType(extValues).computeAttribute(tree);
+
+  tree.traverseByLevel([&area, &domain, &extValuesAttr](NodePtr node) {
+    std::cout << "node.id= " << node->id() << "\n";
+    std::cout << "area[" << node->id() << "]= " << area[node->id()] << "\n";
+    
+    std::cout << "extinction[" << node->id() << "]= " << 
+      extValuesAttr[node->id()] << "\n";
+    
+    mt::printImageIntoConsoleWithCast<mt::int32>(node->reconstruct(domain), domain);
+    std::cout << std::endl;
+  });
 
   return 0;
 }
