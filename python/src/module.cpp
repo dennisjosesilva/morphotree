@@ -29,6 +29,7 @@
 #include "attributes/smoothnessContourComputerpy.hpp"
 #include "attributes/volumeComputerpy.hpp"
 #include "core/opaque_types.hpp"
+#include "filtering/globalOptimiser/globalOptimiserspy.hpp"
 
 namespace py = pybind11;
 namespace mt = morphotree;
@@ -205,4 +206,9 @@ PYBIND11_MODULE(morphotreepy, m)
   bindFoundamentalTypeMaxTreeSmoothnessContourComputer(m);
   bindFoundamentalTypeMinTreeSmoothnessContourComputer(m);
   bindFoundamentalTypeTreeOfShapesSmoothnessContourComputer(m);
+
+  // filtering - global optimiser
+  bindFoundamentalTypeMinCPerimeterWithAbsError(m);
+  bindFoundamentalTypeMinCPerimeterWithAbsErrorToS(m);
+  bindFoundamentalTypeMinCPerimeterWithSquaredErrorToS(m);
 }
