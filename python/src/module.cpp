@@ -31,6 +31,8 @@
 #include "filtering/globalOptimiser/globalOptimiserspy.hpp"
 #include "attributes/ExtinctionValuepy.hpp"
 
+#include "filtering/lexographicalFilterpy.hpp"
+
 #include "core/opaque_types.hpp"
 
 namespace py = pybind11;
@@ -220,6 +222,9 @@ PYBIND11_MODULE(morphotreepy, m)
   bindFoundamentalTypeMinCPerimeterWithAbsError(m);
   bindFoundamentalTypeMinCPerimeterWithAbsErrorToS(m);
   bindFoundamentalTypeMinCPerimeterWithSquaredErrorToS(m);
+
+  // filtering - lexographically filter
+  bindFoundamentalTypeFilterTreeLexographically(m);
 
   // attribute - extinction value
   bindFoundamentalTypeExtinctionValueLeavesComputer(m);

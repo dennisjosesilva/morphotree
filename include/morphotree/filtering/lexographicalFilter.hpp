@@ -16,7 +16,7 @@ namespace morphotree
 
   // ========================== [ IMPLEMENTATION ] ================================================
   template<class ValueType>
-  void ifilterTreeLexographically(const MorphologicalTree<ValueType> &tree, 
+  void ifilterTreeLexographically(MorphologicalTree<ValueType> &tree, 
     const std::vector<uint32> &order, uint32 numberOfNodesToBeKept)
   {
     using NodePtr = typename MorphologicalTree<ValueType>::NodePtr;
