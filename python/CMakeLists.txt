@@ -34,6 +34,7 @@ pybind11_add_module(morphotreepy
   src/attributes/bitquads/quadCountTreeOfShapesComputerpy.cpp
   src/attributes/smoothnessContourComputerpy.cpp
   src/attributes/volumeComputerpy.cpp
+  src/attributes/ExtinctionValuepy.cpp
   src/filtering/globalOptimiser/globalOptimiserspy.cpp
   src/module.cpp)
   

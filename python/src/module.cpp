@@ -28,8 +28,10 @@
 #include "attributes/bitquads/quadCountTreeOfShapesComputerpy.hpp"
 #include "attributes/smoothnessContourComputerpy.hpp"
 #include "attributes/volumeComputerpy.hpp"
-#include "core/opaque_types.hpp"
 #include "filtering/globalOptimiser/globalOptimiserspy.hpp"
+#include "attributes/ExtinctionValuepy.hpp"
+
+#include "core/opaque_types.hpp"
 
 namespace py = pybind11;
 namespace mt = morphotree;
@@ -43,6 +45,13 @@ PYBIND11_MODULE(morphotreepy, m)
   py::bind_vector<std::vector<mt::uint32>>(m, "UI32Vector");
   py::bind_vector<std::vector<mt::int32>>(m, "I32Vector");
   
+  py::bind_map<std::unordered_map<mt::uint32, mt::uint8>>(m, "KUI32VUI8Map");
+  py::bind_map<std::unordered_map<mt::uint32, mt::int8>>(m, "KUI32VI8Map");
+  py::bind_map<std::unordered_map<mt::uint32, mt::uint32>>(m, "KUI32VUI32Map");
+  py::bind_map<std::unordered_map<mt::uint32, mt::int32>>(m, "KUI32VI32Map");
+  py::bind_map<std::unordered_map<mt::uint32, float>>(m, "KUI32VFMap");
+  py::bind_map<std::unordered_map<mt::uint32, double>>(m, "KUI32VDMap");
+
   bindFoundamentalTypePoints(m);
 
   py::class_<mt::ForwardBoxScan>(m, "ForwardBoxScan")
@@ -211,4 +220,8 @@ PYBIND11_MODULE(morphotreepy, m)
   bindFoundamentalTypeMinCPerimeterWithAbsError(m);
   bindFoundamentalTypeMinCPerimeterWithAbsErrorToS(m);
   bindFoundamentalTypeMinCPerimeterWithSquaredErrorToS(m);
+
+  // attribute - extinction value
+  bindFoundamentalTypeExtinctionValueLeavesComputer(m);
+  bindFoundamentalTypeExtinctionValueComputer(m);
 }
