@@ -31,7 +31,7 @@ namespace morphotree
     const std::vector<uint32> &order, uint32 numberOfNodesToBeKept)
   {
     MorphologicalTree<ValueType> ctree = tree.copy();
-    ifilterTreeLexographical(ctree, order, numberOfNodesToBeKept);
+    ifilterTreeLexographically(ctree, order, numberOfNodesToBeKept);
     return ctree;
   }
 }

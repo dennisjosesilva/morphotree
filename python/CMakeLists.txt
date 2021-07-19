@@ -36,6 +36,7 @@ pybind11_add_module(morphotreepy
   src/attributes/volumeComputerpy.cpp
   src/attributes/ExtinctionValuepy.cpp
   src/filtering/globalOptimiser/globalOptimiserspy.cpp
+  src/filtering/lexographicalFilterpy.cpp
   src/module.cpp)
   
 target_link_libraries(morphotreepy PRIVATE ${CONAN_LIBS})
