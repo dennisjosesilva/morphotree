@@ -54,8 +54,10 @@ int main(int argc, char *argv[])
     mt::Box bb = bbs[node->id()];
     
     std::cout << "bb[" << node->id() << "]= " << bb;
+    std::cout << "bb.width[" << node->id() << "]= " << bb.width() << "\n"; 
+    std::cout << "bb.height[" << node->id() << "]= " << bb.height() << "\n"; 
     std::cout << "numberOfDescendants[" << node->id() << "]= " << numberOfDescendants[node->id()] << "\n";
-    std::cout << "topHeight[" << node->id() << "]= " << topHeight[node->id()] << "\n\n";
+    std::cout << "topHeight[" << node->id() << "]= " << topHeight[node->id()] << "\n";
 
     mt::printImageIntoConsoleWithCast<mt::int32>(node->reconstruct(domain), domain);
     std::cout << std::endl;
