@@ -3,10 +3,6 @@
 #include <vector>
 // #include "morphotree/filtering/globalOptimiser/MinCPerimeterWithAbsError.hpp"
 
-#include "morphotree/attributes/topologicalHeightComputer.hpp"
-#include "morphotree/attributes/numberOfDescendantsComputer.hpp"
-#include "morphotree/attributes/boundingboxComputer.hpp"
-
 #include "morphotree/attributes/extinctionValues/ExtinctionValueLeavesComputer.hpp"
 #include "morphotree/attributes/extinctionValues/ExtinctionValueComputer.hpp"
 #include "morphotree/adjacency/adjacency8c.hpp"
@@ -40,23 +36,30 @@ int main(int argc, char *argv[])
   MTree tree = 
     mt::buildMaxTree(f, std::make_shared<mt::Adjacency8C>(domain));
 
-  std::vector<mt::Box> bbs = std::make_unique<mt::BoundingBoxComputer<mt::uint8>>(
-    domain)->computeAttribute(tree);
+  std::vector<mt::uint32> area = mt::AreaComputer<mt::uint8>().computeAttribute(tree);
 
-  std::vector<mt::uint32> numberOfDescendants = std::make_unique<
-    mt::NumberOfDescendantsComputer<mt::uint8>>()->computeAttribute(tree);
+  ExtinctionValueLeavesComputerType extictionValueComp;
 
-  std::vector<mt::uint32> topHeight = 
-    std::make_unique<mt::TopologicalHeightComputer<mt::uint8>>()->computeAttribute(tree);
+  std::unordered_map<mt::uint32, mt::uint32> extValues = 
+    extictionValueComp.compute(tree, area);
 
-  tree.traverseByLevel([&domain, &bbs, &numberOfDescendants, &topHeight](NodePtr node) {
+  std::cout << std::endl;
+  for (std::pair<mt::uint32, mt::uint32> keyValue : extValues) {
+    std::cout << "Ex[" << keyValue.first << "] = " << keyValue.second << "\n";
+  }
+
+  using MapType = decltype(extValues);
+
+  std::vector<mt::uint32> extValuesAttr = 
+    ExtinctionValueComputerType(extValues).computeAttribute(tree);
+
+  tree.traverseByLevel([&area, &domain, &extValuesAttr](NodePtr node) {
     std::cout << "node.id= " << node->id() << "\n";
-    mt::Box bb = bbs[node->id()];
+    std::cout << "area[" << node->id() << "]= " << area[node->id()] << "\n";
     
-    std::cout << "bb[" << node->id() << "]= " << bb;
-    std::cout << "numberOfDescendants[" << node->id() << "]= " << numberOfDescendants[node->id()] << "\n";
-    std::cout << "topHeight[" << node->id() << "]= " << topHeight[node->id()] << "\n\n";
-
+    std::cout << "extinction[" << node->id() << "]= " << 
+      extValuesAttr[node->id()] << "\n";
+    
     mt::printImageIntoConsoleWithCast<mt::int32>(node->reconstruct(domain), domain);
     std::cout << std::endl;
   });

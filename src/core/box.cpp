@@ -52,7 +52,7 @@ namespace morphotree
 
   Box::Box(I32Point topleft, I32Point bottomright)
   { 
-    if (topleft.x() < bottomright.x() && topleft.y() < bottomright.y()) {
+    if (topleft.x() <= bottomright.x() && topleft.y() <= bottomright.y()) {
       topleft_ = topleft;
       bottomright_ = bottomright;
       size_.x(bottomright.x() - topleft.x() + 1);
