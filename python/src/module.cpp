@@ -31,6 +31,10 @@
 #include "filtering/globalOptimiser/globalOptimiserspy.hpp"
 #include "attributes/ExtinctionValuepy.hpp"
 
+#include "attributes/topologicalHeightComputerpy.hpp"
+#include "attributes/boundingBoxComputerpy.hpp"
+#include "attributes/numberOfDescendantsComputerpy.hpp"
+
 #include "filtering/lexographicalFilterpy.hpp"
 
 #include "core/opaque_types.hpp"
@@ -46,6 +50,7 @@ PYBIND11_MODULE(morphotreepy, m)
   py::bind_vector<std::vector<mt::int8>>(m, "I8Vector");
   py::bind_vector<std::vector<mt::uint32>>(m, "UI32Vector");
   py::bind_vector<std::vector<mt::int32>>(m, "I32Vector");
+  py::bind_vector<std::vector<mt::Box>>(m, "BoxVector");
   
   py::bind_map<std::unordered_map<mt::uint32, mt::uint8>>(m, "KUI32VUI8Map");
   py::bind_map<std::unordered_map<mt::uint32, mt::int8>>(m, "KUI32VI8Map");
@@ -229,4 +234,9 @@ PYBIND11_MODULE(morphotreepy, m)
   // attribute - extinction value
   bindFoundamentalTypeExtinctionValueLeavesComputer(m);
   bindFoundamentalTypeExtinctionValueComputer(m);
+
+  // attribute - topological height, number of descendants, and bounding box
+  bindFoundamentalTypesTopologicalHeightComputer(m);
+  bindFoundamentalTypesNumberOfDescendantsComputer(m);
+  bindFoundamentalTypesBoundingBoxComputer(m); 
 }

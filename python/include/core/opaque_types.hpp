@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include "morphotree/core/alias.hpp"
 #include "morphotree/attributes/bitquads/quads.hpp"
+#include "morphotree/core/box.hpp"
 
 namespace py = pybind11;
 namespace mt = morphotree;
@@ -17,6 +18,7 @@ PYBIND11_MAKE_OPAQUE(std::vector<mt::int8>);
 PYBIND11_MAKE_OPAQUE(std::vector<mt::uint32>);
 PYBIND11_MAKE_OPAQUE(std::vector<mt::int32>);
 PYBIND11_MAKE_OPAQUE(std::vector<mt::Quads>);
+PYBIND11_MAKE_OPAQUE(std::vector<mt::Box>);
 
 using unordered_map_uint32_uint8 = std::unordered_map<mt::uint32, mt::uint8>;
 using unordered_map_uint32_uint32 = std::unordered_map<mt::uint32, mt::uint32>;

@@ -23,6 +23,11 @@ void bindFoundamentalTypeAttributeComputer(py::module &m)
   bindAttributeComputer<mt::Quads, mt::int8>(m, "Quads", "I8");
   bindAttributeComputer<mt::Quads, mt::uint32>(m, "Quads", "UI32");
   bindAttributeComputer<mt::Quads, mt::int32>(m, "Quads", "I32");
+
+  bindAttributeComputer<mt::Box, mt::uint8>(m, "Box", "UI8");
+  bindAttributeComputer<mt::Box, mt::int8>(m, "Box", "I8");
+  bindAttributeComputer<mt::Box, mt::uint32>(m, "Box", "UI32");
+  bindAttributeComputer<mt::Box, mt::int32>(m, "Box", "I32");
 }
 
 void bindFoundamentalTypeAreaComputer(py::module &m)
