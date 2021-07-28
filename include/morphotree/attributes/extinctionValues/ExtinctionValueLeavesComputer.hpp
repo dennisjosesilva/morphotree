@@ -14,6 +14,7 @@ namespace morphotree
   public:
     using MTree = MorphologicalTree<ValueType>;
     using NodePtr = typename MTree::NodePtr;
+    using MapType = std::unordered_map<uint32, AttrType>;
 
     std::unordered_map<uint32, AttrType> compute(const MTree &tree, 
       const std::vector<AttrType> &attr) const;

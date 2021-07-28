@@ -14,8 +14,6 @@
 #include "morphotree/tree/mtree.hpp"
 #include "morphotree/core/io.hpp"
 
-#include "morphotree/filtering/extinctionFilter.hpp"
-
 
 namespace mt = morphotree;
 
@@ -42,17 +40,28 @@ int main(int argc, char *argv[])
   MTree tree = 
     mt::buildMaxTree(f, std::make_shared<mt::Adjacency8C>(domain));
 
+  std::vector<mt::Box> bbs = std::make_unique<mt::BoundingBoxComputer<mt::uint8>>(
+    domain)->computeAttribute(tree);
 
-  std::vector<mt::uint32> area = 
-    std::make_unique<mt::AreaComputer<mt::uint8>>()->computeAttribute(tree);
+  std::vector<mt::uint32> numberOfDescendants = std::make_unique<
+    mt::NumberOfDescendantsComputer<mt::uint8>>()->computeAttribute(tree);
 
-  MTree tree_filtered = mt::extinctionFilter(tree, area, 1);
+  std::vector<mt::uint32> topHeight = 
+    std::make_unique<mt::TopologicalHeightComputer<mt::uint8>>()->computeAttribute(tree);
 
-  std::cout << "tree : number of nodes = " << tree.numberOfNodes() << std::endl;
-  std::cout << "filtered tree: number of nodes = " << tree_filtered.numberOfNodes() << std::endl;
-  std::vector<mt::uint8> f_filtered = tree_filtered.reconstructImage();
+  tree.traverseByLevel([&domain, &bbs, &numberOfDescendants, &topHeight](NodePtr node) {
+    std::cout << "node.id= " << node->id() << "\n";
+    mt::Box bb = bbs[node->id()];
+    
+    std::cout << "bb[" << node->id() << "]= " << bb;
+    std::cout << "bb.width[" << node->id() << "]= " << bb.width() << "\n"; 
+    std::cout << "bb.height[" << node->id() << "]= " << bb.height() << "\n"; 
+    std::cout << "numberOfDescendants[" << node->id() << "]= " << numberOfDescendants[node->id()] << "\n";
+    std::cout << "topHeight[" << node->id() << "]= " << topHeight[node->id()] << "\n";
 
-  mt::printImageIntoConsoleWithCast<mt::int32>(f_filtered, domain);
+    mt::printImageIntoConsoleWithCast<mt::int32>(node->reconstruct(domain), domain);
+    std::cout << std::endl;
+  });
 
   return 0;
 }
