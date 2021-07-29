@@ -28,13 +28,13 @@
 #include "attributes/bitquads/quadCountTreeOfShapesComputerpy.hpp"
 #include "attributes/smoothnessContourComputerpy.hpp"
 #include "attributes/volumeComputerpy.hpp"
-#include "filtering/globalOptimiser/globalOptimiserspy.hpp"
 #include "attributes/ExtinctionValuepy.hpp"
-
 #include "attributes/topologicalHeightComputerpy.hpp"
 #include "attributes/boundingBoxComputerpy.hpp"
 #include "attributes/numberOfDescendantsComputerpy.hpp"
+#include "attributes/differenceAttributeComputerpy.hpp"
 
+#include "filtering/globalOptimiser/globalOptimiserspy.hpp"
 #include "filtering/lexographicalFilterpy.hpp"
 #include "filtering/extinctionFilterpy.hpp"
 
@@ -243,4 +243,7 @@ PYBIND11_MODULE(morphotreepy, m)
 
   // filtering - extinction filter
   bindFoundamentalTypesExtinctionFilter(m);
+
+  // attribute - difference attribute computer
+  bindFoundamentalTypesDifferenceAttributeComputer(m);
 }
