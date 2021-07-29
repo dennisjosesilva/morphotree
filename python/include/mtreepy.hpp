@@ -24,6 +24,10 @@ template<typename T>
 py::array MTNodeReconstructAsImageNumpy(mt::MTNode<T> *node, const mt::Box &domain);
 
 template<typename T>
+py::array MTNodeReconstructGreyAsImageNumpy(mt::MTNode<T> *node, const mt::Box &domain,
+  T backgroundValue = 0);
+
+template<typename T>
 py::array MorphologicalTreeReconstructNode(mt::MorphologicalTree<T> *tree, mt::uint32 nodeId);
 
 template<typename T>
@@ -55,6 +59,16 @@ py::array MTNodeReconstructAsImageNumpy(mt::MTNode<T> *node, const mt::Box &doma
   py::array recnp = py::cast(rec);
   recnp.resize({domain.height(), domain.width()});
   return recnp;
+}
+
+template<typename T>
+py::array MTNodeReconstructGreyAsImageNumpy(mt::MTNode<T> *node, const mt::Box &domain, 
+  T backgroundValue)
+{
+  std::vector<T> f = node->reconstructGrey(domain, backgroundValue);
+  py::array npf = py::cast(f);
+  npf.resize({domain.height(), domain.width()});
+  return npf;
 }
 
 template<typename T>
@@ -91,6 +105,9 @@ void bindMTNode(py::module &m, const std::string &type)
   py::class_<mt::MTNode<T>, std::shared_ptr<mt::MTNode<T>>>(m, className.c_str())
     .def(py::init<mt::uint32>(), py::arg("id") = 0)
     .def_property("id", py::overload_cast<>(&mt::MTNode<T>::id), py::overload_cast<mt::uint32>(&mt::MTNode<T>::id))
+    .def_property("representative", 
+      py::overload_cast<>(&mt::MTNode<T>::representative), 
+      py::overload_cast<mt::uint32>(&mt::MTNode<T>::representative))
     .def_property("level", py::overload_cast<>(&mt::MTNode<T>::level), py::overload_cast<T>(&mt::MTNode<T>::level))
     .def_property_readonly("cnps", &mt::MTNode<T>::cnps)
     .def("appendCNP", &mt::MTNode<T>::appendCNP)
@@ -103,6 +120,9 @@ void bindMTNode(py::module &m, const std::string &type)
     .def_property_readonly("children", &mt::MTNode<T>::children)
     .def("reconstruct", py::overload_cast<>(&mt::MTNode<T>::reconstruct, py::const_))
     .def("reconstruct", py::overload_cast<const mt::Box&>(&mt::MTNode<T>::reconstruct, py::const_))
+    .def("reconstructGrey", py::overload_cast<const mt::Box&, T>(&mt::MTNode<T>::reconstructGrey, py::const_),
+      py::arg("domain"), py::arg("backgroundValue") = 0)
+    .def("reconstructGreyNumpy", &MTNodeReconstructGreyAsImageNumpy<T>, py::arg("domain"), py::arg("backgroundValue") = 0)
     .def("reconstructNumpy", &MTNodeReconstructNumpy<T>)
     .def("reconstructNumpy", &MTNodeReconstructAsImageNumpy<T>)
     .def("copy", &mt::MTNode<T>::copy);
