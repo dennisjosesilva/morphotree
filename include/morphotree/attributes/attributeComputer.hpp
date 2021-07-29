@@ -11,6 +11,7 @@ namespace morphotree
   public:
     using NodePtr = typename MorphologicalTree<ValueType>::NodePtr;
     using TreeType = MorphologicalTree<ValueType>;
+    using AttributeType = AttrType;
 
     std::vector<AttrType> computeAttribute(const TreeType &tree);
 

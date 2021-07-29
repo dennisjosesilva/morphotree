@@ -14,6 +14,8 @@
 #include "morphotree/tree/mtree.hpp"
 #include "morphotree/core/io.hpp"
 
+#include "morphotree/attributes/differenceAttributeComputer.hpp"
+
 #include "morphotree/filtering/extinctionFilter.hpp"
 
 
@@ -22,6 +24,7 @@ namespace mt = morphotree;
 int main(int argc, char *argv[]) 
 {
   using ValueType = mt::uint8;
+  using AreaType = typename mt::AreaComputer<mt::uint8>::AttrType;
   using ExtinctionValueLeavesComputerType = mt::ExtinctionValueLeavesComputer<ValueType, mt::uint32>;
   using ExtinctionValueComputerType = mt::ExtinctionValueComputer<ValueType, mt::uint32>;
   using MTree = mt::MorphologicalTree<mt::uint8>;
@@ -43,15 +46,20 @@ int main(int argc, char *argv[])
     mt::buildMaxTree(f, std::make_shared<mt::Adjacency8C>(domain));
 
 
-  std::vector<mt::uint32> area = 
+  std::vector<AreaType> area = 
     std::make_unique<mt::AreaComputer<mt::uint8>>()->computeAttribute(tree);
+
+  std::vector<AreaType> areaDifference = 
+    std::make_unique<mt::DifferenceAttributeComputer<AreaType, ValueType>>(area)->computeAttribute(tree);
 
   MTree tree_filtered = mt::extinctionFilter(tree, area, 1);
   
 
   std::cout << "========================= TREE =======================================\n";
-  tree.traverseByLevel([&domain](NodePtr node) {
+  tree.traverseByLevel([&domain, &area, &areaDifference](NodePtr node) {
     std::cout << "node.id= " << node->id() << std::endl;
+    std::cout << "area[" << node->id() << "]= " << area[node->id()] << "\n";
+    std::cout << "areaDifference[" << node->id() << "]= " << areaDifference[node->id()] << "\n";
     mt::printImageIntoConsoleWithCast<mt::int32>(node->reconstruct(domain), domain);
     std::cout << std::endl;
   });
