@@ -47,36 +47,12 @@ int main(int argc, char *argv[])
     std::make_unique<mt::AreaComputer<mt::uint8>>()->computeAttribute(tree);
 
   MTree tree_filtered = mt::extinctionFilter(tree, area, 1);
-  
 
-  std::cout << "========================= TREE =======================================\n";
-  tree.traverseByLevel([&domain](NodePtr node) {
-    std::cout << "node.id= " << node->id() << std::endl;
-    mt::printImageIntoConsoleWithCast<mt::int32>(node->reconstruct(domain), domain);
-    std::cout << std::endl;
-  });
+  std::cout << "tree : number of nodes = " << tree.numberOfNodes() << std::endl;
+  std::cout << "filtered tree: number of nodes = " << tree_filtered.numberOfNodes() << std::endl;
+  std::vector<mt::uint8> f_filtered = tree_filtered.reconstructImage();
 
-  std::cout << "========================= TREE FILTERED ================================\n";
-  tree_filtered.traverseByLevel([&domain, &tree](NodePtr node) {
-    std::cout << "node.id= " << node->id() << std::endl;
-    std::cout << "original node=" << tree.smallComponent(node->representative())->id() << "\n"; 
-    mt::printImageIntoConsoleWithCast<mt::int32>(node->reconstruct(domain), domain);
-    std::cout << std::endl;
-  });
-
-  
-  std::vector<ValueType> f_filtered = tree_filtered.reconstructImage();
-
-  std::cout << "\n";
-  std::cout << "========================= IMAGE FILTERED ================================\n";
   mt::printImageIntoConsoleWithCast<mt::int32>(f_filtered, domain);
-
-  std::cout << "\n";
-  std::cout << "========================= IMAGE NODE 2 ================================\n";
-  NodePtr node = tree.smallComponent(tree_filtered.node(2)->representative());
-  
-  std::vector<ValueType> recNode = node->reconstructGrey(domain);
-  mt::printImageIntoConsoleWithCast<mt::int32>(recNode, domain);
 
   return 0;
 }

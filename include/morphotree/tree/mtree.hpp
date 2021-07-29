@@ -35,6 +35,10 @@ namespace morphotree
     inline uint& id() { return id_; }
     inline void id(uint newid) { id_ = newid; } 
 
+    inline uint32 representative() const { return representative_; }
+    inline uint32& representative() { return representative_; } 
+    inline void representative(uint32 newrep) { representative_ = newrep; }
+
     inline WeightType& level() { return level_; }
     inline WeightType  level() const { return level_; }
     inline void level(WeightType v) { level_ = v; }
@@ -53,13 +57,22 @@ namespace morphotree
     inline const std::list<NodePtr>& children() const { return children_; }
     
     std::vector<uint32> reconstruct() const;
-    void reconstruct(std::vector<uint32> &pixels, const NodePtr node) const; 
     std::vector<bool> reconstruct(const Box &domain) const;
+
+    std::vector<WeightType> reconstructGrey(const Box &domain, 
+      WeightType backgroundValue=0) const;
 
     NodePtr copy() const;
 
   private:
+    void reconstruct(std::vector<uint32> &pixels, const NodePtr node) const; 
+    void reconstructGrey(NodePtr node, const Box &domain, 
+      std::vector<WeightType> &f) const;
+
+  private:
     uint32 id_;
+    uint32 representative_;
+
     WeightType level_;
     std::vector<uint32> cnps_;
     NodePtr parent_;
@@ -171,6 +184,34 @@ namespace morphotree
   }
 
   template<class WeightType>
+  std::vector<WeightType>  MTNode<WeightType>::reconstructGrey(const Box &domain,
+    WeightType backgroundValue) const
+  {
+    std::vector<WeightType> f(domain.numberOfPoints(), backgroundValue);
+    
+    for (uint32 p : cnps()) {
+      f[p] = level();
+    }
+    for (NodePtr child :children()) {
+      reconstructGrey(child, domain, f);
+    }
+    
+    return f;
+  }
+
+  template<class WeightType>
+  void MTNode<WeightType>::reconstructGrey(NodePtr node, const Box &domain, 
+    std::vector<WeightType> &f) const
+  {
+    for (uint32 p : node->cnps()) {
+      f[p] = node->level();
+    }
+    for (NodePtr c : node->children()) {
+      reconstructGrey(c, domain, f);
+    }
+  }
+
+  template<class WeightType>
   void MTNode<WeightType>::includeCNPS(const std::vector<uint32>& cnps)
   {
     cnps_.insert(cnps_.end(), cnps.begin(), cnps.end());
@@ -188,6 +229,7 @@ namespace morphotree
     NodePtr cnode = std::make_shared<MTNode<WeightType>>(id_);
     cnode->level(level_);  
     cnode->cnps_ = cnps_;
+    cnode->representative_ = representative_;
     return cnode;
   }
 
@@ -226,6 +268,7 @@ namespace morphotree
     NodePtr root = std::make_shared<NodeType>(0);
     root->level(f[p]);
     root->appendCNP(p);
+    root->representative(p);
     root->parent(nullptr);
     cmap_[p] = root->id();
     nodes_[0] = root;
@@ -242,6 +285,7 @@ namespace morphotree
       node->parent(parentNode);
       node->level(f[p]);
       node->appendCNP(p);
+      node->representative(p);
       parentNode->appendChild(node);
 
       nodes_[i-1] = node; 
