@@ -36,6 +36,7 @@
 #include "attributes/numberOfDescendantsComputerpy.hpp"
 
 #include "filtering/lexographicalFilterpy.hpp"
+#include "filtering/extinctionFilterpy.hpp"
 
 #include "core/opaque_types.hpp"
 
@@ -239,4 +240,7 @@ PYBIND11_MODULE(morphotreepy, m)
   bindFoundamentalTypesTopologicalHeightComputer(m);
   bindFoundamentalTypesNumberOfDescendantsComputer(m);
   bindFoundamentalTypesBoundingBoxComputer(m); 
+
+  // filtering - extinction filter
+  bindFoundamentalTypesExtinctionFilter(m);
 }

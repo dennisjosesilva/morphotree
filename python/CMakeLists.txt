@@ -39,7 +39,8 @@ pybind11_add_module(morphotreepy
   src/attributes/numberOfDescendantsComputerpy.cpp
   src/attributes/topologicalHeightComputerpy.cpp
   src/filtering/globalOptimiser/globalOptimiserspy.cpp
-  src/filtering/lexographicalFilterpy.cpp 
+  src/filtering/lexographicalFilterpy.cpp
+  src/filtering/extinctionFilterpy.cpp 
   src/module.cpp)
   
 target_link_libraries(morphotreepy PRIVATE ${CONAN_LIBS})
