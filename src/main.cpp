@@ -17,7 +17,13 @@
 #include "morphotree/attributes/differenceAttributeComputer.hpp"
 
 #include "morphotree/filtering/treeFilterRules.hpp"
+#include "morphotree/filtering/progressiveDifferenceAttributeFilter.hpp"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 
 namespace mt = morphotree;
 
@@ -30,35 +36,38 @@ int main(int argc, char *argv[])
   using MTree = mt::MorphologicalTree<mt::uint8>;
   using NodePtr = MTree::NodePtr;
 
-  std::vector<ValueType> f = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 2, 2, 2, 2, 2, 2, 2, 2, 2 ,2, 2, 0,
-    0, 2, 4, 4, 4, 2, 4, 4, 4, 4, 4, 2, 0,
-    0, 2, 4, 7, 4, 2, 4, 7, 4, 7, 4, 2, 0,
-    0, 2, 4, 4, 4, 2, 4, 4, 4, 4, 4, 2, 0,
-    0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-  };
 
-  mt::Box domain = mt::Box::fromSize(mt::UI32Point(13, 7));
+  int width, height, nchannels;
+  ValueType *data = stbi_load("imgExample.png", &width, &height, &nchannels, 1);
+
+  std::vector<ValueType> f(data, data + (width*height));
+  mt::Box domain = mt::Box::fromSize(mt::UI32Point(width, height));
     
   MTree tree = 
     mt::buildMaxTree(f, std::make_shared<mt::Adjacency8C>(domain));
 
-  std::vector<bool> keep = {true, false, false, true, true, false, false};
+  std::vector<AreaType> area = 
+    std::make_unique<mt::AreaComputer<ValueType>>()->computeAttribute(tree);
 
-  MTree tree_filtered = mt::maxRuleFilter(tree, [&keep](NodePtr node) { return keep[node->id()]; });
-
-  tree_filtered.traverseByLevel([&domain, &tree](NodePtr node) {
-    std::cout << "node.id= " << node->id() << std::endl;
-    std::cout << "id= " << tree.smallComponent(node->representative())->id() << std::endl;
-    mt::printImageIntoConsoleWithCast<mt::int32>(node->reconstruct(domain), domain);   
-    std::cout << std::endl;
+  tree.traverseByLevel([&domain, &area](NodePtr node) {
+    std::cout << "node.id= " << node->id() << std::endl;    
+    std::cout << "area[" << node->id() << "]= " << area[node->id()] << "\n";
+    //mt::printImageIntoConsoleWithCast<mt::int32>(node->reconstruct(domain), domain);   
+    std::cout << "\n";
   });
 
-  std::cout << std::endl << std::endl;
-  std::vector<ValueType> f_filtered = tree_filtered.reconstructImage();
-  mt::printImageIntoConsoleWithCast<mt::int32>(f_filtered, domain);
+  MTree tree_filtered = mt::progressiveDifferenceFilter(tree, area, static_cast<AreaType>(35));
+  
+
+  std::cout << "================= FILTETED RESULT =========================================";
+  tree_filtered.traverseByLevel([&domain, &area, &tree](NodePtr node) {
+    NodePtr onode = tree.smallComponent(node->representative());
+    std::cout << "node.id= " << node->id() << std::endl;  
+    std::cout << "onode.id= " << onode->id() << "\n";    
+    std::cout << "area[" << onode->id() << "]= " << area[onode->id()] << "\n";
+    //mt::printImageIntoConsoleWithCast<mt::int32>(node->reconstruct(domain), domain);   
+    std::cout << "\n";
+  });
 
   return 0;
 }
