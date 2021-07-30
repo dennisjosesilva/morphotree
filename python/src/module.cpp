@@ -37,6 +37,7 @@
 #include "filtering/globalOptimiser/globalOptimiserspy.hpp"
 #include "filtering/lexographicalFilterpy.hpp"
 #include "filtering/extinctionFilterpy.hpp"
+#include "filtering/treeFilterRulespy.hpp"
 
 #include "core/opaque_types.hpp"
 
@@ -246,4 +247,7 @@ PYBIND11_MODULE(morphotreepy, m)
 
   // attribute - difference attribute computer
   bindFoundamentalTypesDifferenceAttributeComputer(m);
+
+  // filtering - max rule
+  bindFoundamentalTypesMaxRuleFilter(m);
 }
