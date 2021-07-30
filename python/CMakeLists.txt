@@ -42,7 +42,7 @@ pybind11_add_module(morphotreepy
   src/filtering/globalOptimiser/globalOptimiserspy.cpp
   src/filtering/lexographicalFilterpy.cpp
   src/filtering/extinctionFilterpy.cpp
-  src/filtering/treeFilterRules.cpp 
+  src/filtering/treeFilterRulespy.cpp 
   src/module.cpp)
   
 target_link_libraries(morphotreepy PRIVATE ${CONAN_LIBS})
