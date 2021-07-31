@@ -38,6 +38,7 @@
 #include "filtering/lexographicalFilterpy.hpp"
 #include "filtering/extinctionFilterpy.hpp"
 #include "filtering/treeFilterRulespy.hpp"
+#include "filtering/progressiveDifferenceAttributeFilterpy.hpp"
 
 #include "core/opaque_types.hpp"
 
@@ -250,4 +251,7 @@ PYBIND11_MODULE(morphotreepy, m)
 
   // filtering - max rule
   bindFoundamentalTypesMaxRuleFilter(m);
+
+  // filtering - progressive difference attribute filter
+  bindFoundamentalTypesProgressiveDifferenceFilter(m);
 }

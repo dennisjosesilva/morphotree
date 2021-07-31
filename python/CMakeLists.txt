@@ -43,6 +43,7 @@ pybind11_add_module(morphotreepy
   src/filtering/lexographicalFilterpy.cpp
   src/filtering/extinctionFilterpy.cpp
   src/filtering/treeFilterRulespy.cpp 
+  src/filtering/progressiveDifferenceAttributeFilterpy.cpp
   src/module.cpp)
   
 target_link_libraries(morphotreepy PRIVATE ${CONAN_LIBS})
