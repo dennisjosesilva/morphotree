@@ -7,6 +7,8 @@
 #include <vector>
 #include <functional>
 
+#include <omp.h>
+
 namespace morphotree 
 {
   class ConvKernel
@@ -30,6 +32,8 @@ namespace morphotree
     inline float weight(const I32Point& p) const { return weight(domain_.pointToIndex(p)); }
     inline float weight(int x, int y) const { return weight(I32Point{x, y}); }
 
+    float operator[](uint32 idx) const { return weight_[idx]; }    
+
     template<typename ValueType>
     std::vector<ValueType> convolve(const Box &fDomain,
       const std::vector<ValueType> &f,
@@ -49,9 +53,12 @@ namespace morphotree
   {
     std::vector<ValueType> fFiltered(fDomain.numberOfPoints(), 0);
 
-    I32Point p;
-    for (p.y() = fDomain.top(); p.y() <= fDomain.bottom(); p.y()++) {
-      for (p.x() = fDomain.left(); p.x() <= fDomain.right(); p.x()++) {        
+    // I32Point p;    
+
+    #pragma omp parallel for   
+    for (int y = fDomain.top(); y <= fDomain.bottom(); y++) {
+      for (int x = fDomain.left(); x <= fDomain.right(); x++) {        
+        I32Point p{x, y};
         I32Point k;
         float acc = 0;
         for (k.y() = domain_.top(); k.y() <= domain_.bottom(); k.y()++) {
