@@ -452,7 +452,7 @@ namespace morphotree
   MorphologicalTree<WeightType>::smallComponent(uint32 idx, const std::vector<bool> &mask) const
   {
     NodePtr node = nodes_[cmap_[idx]];
-    while (!mask[node->id()] || node->id() != 0) 
+    while (!mask[node->id()] && node->id() != 0) 
       node = node->parent();
     
     return node;
