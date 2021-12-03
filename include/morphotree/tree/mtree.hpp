@@ -116,8 +116,11 @@ namespace morphotree
 
     void traverseByLevel(std::function<void(NodePtr)> visit);
 
-    inline NodePtr smallComponent(uint32 idx) { return nodes_[cmap_[idx]]; }
+    inline NodePtr smallComponent(uint32 idx) { return nodes_[cmap_[idx]]; }    
     inline const NodePtr smallComponent(uint32 idx) const { return nodes_[cmap_[idx]]; }
+    
+    NodePtr smallComponent(uint32 idx, const std::vector<bool> &mask);
+    const NodePtr smallComponent(uint32 idx, const std::vector<bool> &mask) const;
 
     MorphologicalTree<WeightType> copy() const;
 
@@ -431,6 +434,28 @@ namespace morphotree
         queue.push(c);
       }
     }
+  }
+
+  template<class WeightType>
+  typename MorphologicalTree<WeightType>::NodePtr 
+  MorphologicalTree<WeightType>::smallComponent(uint32 idx, const std::vector<bool> &mask)
+  {
+    NodePtr node = nodes_[cmap_[idx]];
+    while (!mask[node->id()] && node->id() != 0) 
+      node = node->parent();
+    
+    return node;
+  }
+
+  template<class WeightType>
+  const typename MorphologicalTree<WeightType>::NodePtr 
+  MorphologicalTree<WeightType>::smallComponent(uint32 idx, const std::vector<bool> &mask) const
+  {
+    NodePtr node = nodes_[cmap_[idx]];
+    while (!mask[node->id()] || node->id() != 0) 
+      node = node->parent();
+    
+    return node;
   }
 
   template<class WeightType>
