@@ -3,6 +3,8 @@
 #include "morphotree/tree/mtree.hpp"
 #include "morphotree/attributes/bitquads/quadCountComputer.hpp"
 
+#include <cmath>
+
 namespace morphotree
 {
   template<typename ValueType>
@@ -192,9 +194,32 @@ namespace morphotree
       }
       else {
         // keep children
-        vsumPerimeter[node->id()]
+        vsumPerimeter[node->id()] = D;
+        vssim[node->id()] = C;
       }
     });
 
+    return SSIMAccPerimeterPair{
+      computeFinalAccPerimeter(vsumPerimeter, tree),
+      computeFinalSSIM(vssim, tree)
+    };
+  }
+
+  template<typename ValueType>
+  void MinCPerimeterWithSSIM<ValueType>::resetKeepMapping()
+  {
+    std::fill(keep_.begin(), keep_.end(), true);
+  }
+
+  template<typename ValueType>
+  bool MinCPerimeterWithSSIM<ValueType>::approx(float v0, float v1)
+  {
+    return fabs(v0 - v1) <= approxThreshold;
+  }
+
+  template<typename ValueType>
+  float MinCPerimeterWithSSIM<ValueType>::computeMaxError() const 
+  {
+    
   }
 }
