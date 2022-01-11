@@ -12,6 +12,7 @@
 #include "morphotree/core/sort.hpp"
 
 #include <queue>
+#include <stack>
 
 namespace morphotree
 {
@@ -99,6 +100,9 @@ namespace morphotree
 
     inline std::vector<uint32> reconstructNode(uint32 nodeId) const { return nodes_[nodeId]->reconstruct(); }
     std::vector<bool> reconstructNode(uint32 nodeId, const Box &domain) const { return nodes_[nodeId]->reconstruct(domain); };
+
+    std::vector<uint32> reconstructNodes(std::function<bool(NodePtr)> keep) const;
+    std::vector<bool> reconstructNodes(std::function<bool(NodePtr)> keep, const Box &domain) const;
 
     uint32 numberOfNodes() const { return nodes_.size(); }
 
@@ -302,6 +306,47 @@ namespace morphotree
         nodes_[cmap_[i]]->appendCNP(i);
       }
     }
+  }
+
+  template<typename WeightType>
+  std::vector<uint32> 
+  MorphologicalTree<WeightType>::reconstructNodes(std::function<bool(NodePtr)> keep) const
+  {
+    std::vector<uint32> rec;
+    
+    std::stack<NodePtr> s;
+    s.push(root_);
+
+    while (!s.empty()) {
+      NodePtr n = s.top();
+      s.pop();
+
+      if ((n->id() != root_->id()) && keep(n)) {
+        std::vector<uint32> recn = n->reconstruct();
+        rec.insert(rec.end(), recn.begin(), recn.end());
+      }
+      else {
+        for (NodePtr c : n->children()) 
+          s.push(c);
+      }
+    }
+
+    return rec;
+  }
+
+
+  template<typename WeightType>  
+  std::vector<bool> MorphologicalTree<WeightType>::reconstructNodes(std::function<
+    bool(NodePtr)> keep, const Box &domain) const
+  {
+    std::vector<bool> bin(domain.numberOfPoints(), false);
+    std::vector<uint32> pixels = reconstructNodes(keep);
+
+    for (const uint32 pidx : pixels) {
+      bin[pidx] = true;
+    }
+
+    return bin;
   }
   
   template<class WeightType>
