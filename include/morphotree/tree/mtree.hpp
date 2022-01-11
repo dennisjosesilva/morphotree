@@ -107,7 +107,8 @@ namespace morphotree
     void tranverse(std::function<void(const NodePtr node)> visit) const;
 
     std::vector<WeightType> reconstructImage() const;
-    
+    std::vector<WeightType> reconstructImage(std::function<bool(const NodePtr)> keep) const;
+
     void idirectFilter(std::function<bool(const NodePtr)> keep);
 
     MorphologicalTree<WeightType> directFilter(std::function<bool(const NodePtr)> keep) const;    
@@ -340,7 +341,35 @@ namespace morphotree
     }
     return f;
   }
-  
+  template<typename WeightType>
+  std::vector<WeightType> MorphologicalTree<WeightType>::reconstructImage(
+    std::function<bool(const NodePtr)> keep) const
+  {
+    using namespace std;
+    vector<vector<uint32>> up(numberOfNodes(), vector<uint32>());
+    vector<WeightType> f(cmap_.size(), 0);
+
+    tranverse([&up, &keep, &f](const NodePtr node){
+      if (keep(node)) {
+        for (uint32 pidx : node->cnps()) 
+          f[pidx] = node->level();
+        
+        for (uint32 pidx : up[node->id()]) 
+          f[pidx] = node->level();          
+      }
+      else {        
+        const vector<uint32> &cnps = node->cnps();
+        const vector<uint32> &upCnps = up[node->id()];
+        vector<uint32> &upParent = up[node->parent()->id()];
+
+        upParent.insert(upParent.end(), cnps.begin(), cnps.end());
+        upParent.insert(upParent.end(), upCnps.begin(), upCnps.end());
+      }
+    });
+
+    return f;
+  }
+
   template<class WeightType>
   void MorphologicalTree<WeightType>::idirectFilter(std::function<bool(const NodePtr)> keep)
   {

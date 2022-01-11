@@ -48,7 +48,7 @@ namespace morphotree
   float SSIM::compute(const Box &domain, const std::vector<ValueType> &f, 
     const std::vector<ValueType> &g) const
   {
-    Result r = compute(domain, f, g);
+    Result r = computeWithMap(domain, f, g);
     return r.fullResult;
   }
 

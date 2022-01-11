@@ -1,45 +1,50 @@
-#include "morphotree/core/box.hpp"
+#include "morphotree/core/convKernel.hpp"
+#include "morphotree/core/io.hpp"
+#include "morphotree/measure/ssim.hpp"
+
+#include "morphotree/tree/ct_builder.hpp"
 #include "morphotree/tree/mtree.hpp"
 #include "morphotree/adjacency/adjacency8c.hpp"
-#include "morphotree/core/io.hpp"
 
-#include <vector>
+#include "morphotree/filtering/globalOptimiser/MinCPerimeterWithSSIM.hpp"
 
-namespace mt = morphotree;
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
-int main(int argc, char *argv[]) 
+#define STB_IMAGE_WRITE_IMEPLEMENTATION
+#include "stb_image_write.h"
+
+int main(int argc, char *argv[])
 {
-  using MTree = mt::MorphologicalTree<mt::uint8>;
+  using morphotree::Box;
+  using morphotree::uint8;
+  using morphotree::uint32;
+  using morphotree::UI32Point;
+  using morphotree::Adjacency8C;
+  using morphotree::buildMaxTree;
+  using MTree = morphotree::MorphologicalTree<uint8>;
+  using NodePtr = typename MTree::NodePtr;
   
-  mt::Box domain = mt::Box::fromSize(mt::UI32Point{7, 7});
-  std::vector<mt::uint8> f = {
-    0, 0, 0, 0, 0, 0, 0,
-    0, 4, 4, 4, 7, 7, 7,
-    0, 7, 7, 4, 7, 4, 7,
-    0, 7, 4, 4, 7, 4, 7,
-    0, 4, 4, 4, 7, 4, 7,
-    0, 7, 7, 4, 7, 7, 7,
-    0, 0, 0, 0, 0, 0, 0 
-  };
+  using morphotree::buildMaxTree;
+  using MTree = morphotree::MorphologicalTree<uint8>;
+  using NodePtr = typename MTree::NodePtr;
+  using Optimiser = morphotree::MinCPerimeterWithSSIM<uint8>;
 
-  MTree tree = mt::buildMaxTree(f, std::make_shared<mt::Adjacency8C>(domain));
+  // Read input image
+  // ----------------
+  int width, height, nchannels;
+  uint8 *data = stbi_load(argv[1], &width, &height, &nchannels, 1);  
+  Box domain = Box::fromSize(UI32Point{ static_cast<uint32>(width), static_cast<uint32>(height)} );
+  std::vector<uint8> f{data, data + domain.numberOfPoints()};
 
-  std::vector<bool> bimg = 
-    tree.smallComponent(domain.pointToIndex(4, 1))->reconstruct(domain);
+  // build max-tree
+  MTree tree = buildMaxTree(f, std::make_shared<Adjacency8C>(domain));
 
-  mt::printImageIntoConsoleWithCast<int>(bimg, domain);
+  // filtering
+  Optimiser opt{ domain, f, "../resource/dt-max-tree-8c.dat", tree, 0.05 };  
+  std::vector<uint8> f_filtered = opt.filter(0.7);
 
-  std::vector<bool> keep(tree.numberOfNodes(), true);
-  keep[tree.smallComponent(domain.pointToIndex(4, 1))->id()] = false;
-
-  for (int i = 0; i < keep.size(); i++)
-    std::cout << "i: " << keep[i] << std::endl;
-
-  bimg = 
-    tree.smallComponent(domain.pointToIndex(4, 1), keep)->reconstruct(domain);
-
-  std::cout << "------------- Removing node at (4, 1) --------------------\n";
-  mt::printImageIntoConsoleWithCast<int>(bimg, domain);
+  std::cout << "DONE";
 
   return 0;
 }
