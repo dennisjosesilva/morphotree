@@ -3,6 +3,8 @@
 #include "morphotree/core/alias.hpp"
 #include "morphotree/attributes/attributeComputer.hpp"
 
+#include <cmath>
+
 namespace morphotree
 {
   template<class ValueType>
@@ -41,7 +43,7 @@ namespace morphotree
     NodePtr parent)
   {
     area_[parent->id()] += area_[node->id()];
-    attr[parent->id()] += area_[node->id()] +  attr[node->id()] +  
-      (area_[node->id()] *  (node->level() - parent->level()));
+    attr[parent->id()] +=  attr[node->id()] +  
+      (area_[node->id()] * fabs((node->level() - parent->level())));
   }
 }
