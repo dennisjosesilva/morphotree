@@ -59,6 +59,7 @@ namespace morphotree
     bool approx(float v0, float v1);
 
   private:
+    float totalSumPerimeter_;
     float approxThreshold_;
     const MTree &tree_;
     float curSSIM_;
@@ -112,7 +113,7 @@ namespace morphotree
     std::unique_ptr<AttrComputer> quadComputer = 
       std::make_unique<QuadCounter>(domain_, f_, dtFilename_);
     
-    cperimeter_.resize(tree.numberOfNodes(), 0.0f);
+    cperimeter_.resize(tree.numberOfNodes(), 0.0f);    
 
     std::vector<Quads> quads = quadComputer->initAttributes(tree);
     tree.tranverse([this, &quadComputer, &quads](NodePtr node){
@@ -124,7 +125,12 @@ namespace morphotree
 
       quadComputer->finaliseComputation(quads, node);
       this->cperimeter_[node->id()] = quads[node->id()].continuousPerimeter();
-    });
+    });    
+
+    std::cout << "root perimeter: " <<  cperimeter_[0] << "\n";
+    totalSumPerimeter_ = 0.0f;
+    for (float &cp : cperimeter_)
+      totalSumPerimeter_ += cp;
   }
 
   template<typename ValueType>
@@ -155,6 +161,9 @@ namespace morphotree
       return;
 
     do {  // Find the optimum lambda value 
+      std::cout << "Dl: " << Dl << ", Dh: " << Dh << "\n"
+                << "Cl: " << Cl << ", Ch: " << Ch << "\n";
+
       float lambda = (Dl - Dh) / (Ch - Cl);
       CD = bottomUpAnalysis(tree, lambda);
 
@@ -194,25 +203,25 @@ namespace morphotree
         float CC = computeFilteredChildrenSSIM(keepWithPrunning);
         auto end = high_resolution_clock::now();
         auto duration = duration_cast<milliseconds>(end - start);
-        std::cout << "computeFilteredChildrenSSIM: " << duration.count() << " ms\n";
+        // std::cout << "computeFilteredChildrenSSIM: " << duration.count() << " ms\n";
         
         start = high_resolution_clock::now();                
         float CD = computeFilteredChildrenAccPerimeter(keepWithPrunning);
         end = high_resolution_clock::now();
         duration = duration_cast<milliseconds>(end - start);
-        std::cout << "computeFilteredChildrenAccPerimeter: " << duration.count() << " ms\n";
+        // std::cout << "computeFilteredChildrenAccPerimeter: " << duration.count() << " ms\n";
 
         start = high_resolution_clock::now();
         float C = computeSSIM();
         end = high_resolution_clock::now();
         duration = duration_cast<milliseconds>(end - start);
-        std::cout << "computeSSIM: " << duration.count() << " ms\n";
+        // std::cout << "computeSSIM: " << duration.count() << " ms\n";
 
         start = high_resolution_clock::now();
         float D = computeAccPerimeter();      
         end = high_resolution_clock::now();
         duration = duration_cast<milliseconds>(end - start);
-        std::cout << "computeAccPerimeter: " << duration.count() << " ms\n";
+        // std::cout << "computeAccPerimeter: " << duration.count() << " ms\n";
 
         if ( (CD + (lambda * CC)) <= (D + (lambda * C)) ) {
           // remove children        
@@ -258,7 +267,7 @@ namespace morphotree
   {
     std::vector<ValueType> frec = 
       tree_.reconstructImage([this](NodePtr node) { return keep_[node->id()]; });
-    return ssim_.compute(domain_, f_, frec);
+    return 1.f - ssim_.compute(domain_, f_, frec);
   }
 
   template<typename ValueType>
@@ -270,7 +279,7 @@ namespace morphotree
         return keepWithPrunnig[node->id()];
       });
     
-    return ssim_.compute(domain_, f_, frec);
+    return 1.f - ssim_.compute(domain_, f_, frec);
   }
 
   template<typename ValueType>
