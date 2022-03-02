@@ -8,7 +8,7 @@
 namespace morphotree
 {
   template<class ValueType>
-  class MaxTreeVolumeComputer : public AttributeComputer<float, ValueType>
+  class VolumeComputer : public AttributeComputer<float, ValueType>
   {
   public:
     using AttrType = float;
@@ -25,21 +25,21 @@ namespace morphotree
 
   // ================ [Implementation] ======================================================
   template<class ValueType>
-  std::vector<float> MaxTreeVolumeComputer<ValueType>::initAttributes(const TreeType &tree)
+  std::vector<float> VolumeComputer<ValueType>::initAttributes(const TreeType &tree)
   {
     area_.resize(tree.numberOfNodes(), 0);
     return std::vector<float>(tree.numberOfNodes(), 0.f);   
   }
 
   template<class ValueType>
-  void MaxTreeVolumeComputer<ValueType>::computeInitialValue(std::vector<float> &attr, NodePtr node)
+  void VolumeComputer<ValueType>::computeInitialValue(std::vector<float> &attr, NodePtr node)
   {
     area_[node->id()] += node->cnps().size();
     attr[node->id()] += node->cnps().size();
   }
 
   template<class ValueType>
-  void MaxTreeVolumeComputer<ValueType>::mergeToParent(std::vector<float> &attr, NodePtr node, 
+  void VolumeComputer<ValueType>::mergeToParent(std::vector<float> &attr, NodePtr node, 
     NodePtr parent)
   {
     area_[parent->id()] += area_[node->id()];

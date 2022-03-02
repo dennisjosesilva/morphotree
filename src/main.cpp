@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
   using NodePtr = typename MTree::NodePtr;
 
   using MyAttributeComputer = AttributeComputer<float, uint8>;
-  using MyVolumeComputer = MaxTreeVolumeComputer<uint8>;
+  using MyVolumeComputer = VolumeComputer<uint8>;
 
 
   std::vector<uint8> f = {
