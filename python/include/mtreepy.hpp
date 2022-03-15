@@ -131,6 +131,8 @@ void bindMTNode(py::module &m, const std::string &type)
 template<typename T>
 void bindMorphologicalTree(py::module &m, const std::string& type)
 {
+  using NodePtr = typename mt::MorphologicalTree<T>::NodePtr;
+
   std::string className = type + "MorphologicalTree";
   py::class_<mt::MorphologicalTree<T>>(m, className.c_str())
     .def(py::init<mt::MorphoTreeType>())
@@ -143,7 +145,8 @@ void bindMorphologicalTree(py::module &m, const std::string& type)
     .def("reconstructNodeNumpy", &MorphologicalTreeReconstructNodeAsImage<T>)
     .def_property_readonly("numberOfNodes", &mt::MorphologicalTree<T>::numberOfNodes)
     .def("tranverse", &mt::MorphologicalTree<T>::tranverse)
-    .def("reconstructImage", &mt::MorphologicalTree<T>::reconstructImage)
+    .def("reconstructImage", py::overload_cast<>(&mt::MorphologicalTree<T>::reconstructImage, py::const_))    
+    .def("reconstructImageWithFilter", py::overload_cast<std::function<bool(const NodePtr)>>(&mt::MorphologicalTree<T>::reconstructImage, py::const_))    
     .def("reconstructImageNumpy", &MorphologicalTreeReconstructImage<T>)
     .def("idirectFilter", &mt::MorphologicalTree<T>::idirectFilter)
     .def("directFilter", &mt::MorphologicalTree<T>::directFilter)

@@ -22,12 +22,12 @@ void bindFoundamentalTypesMaxTreeVolumeComputer(py::module &m);
 template<typename ValueType>
 void bindMaxTreeVolumeComputer(py::module &m, const std::string &valueType)
 {
-  std::string className = valueType + "MaxTreeVolumeComputer";
-  py::class_<mt::MaxTreeVolumeComputer<ValueType>, 
+  std::string className = valueType + "VolumeComputer";
+  py::class_<mt::VolumeComputer<ValueType>, 
     mt::AttributeComputer<float, ValueType>>(m, className.c_str())
   .def(py::init<>())
-  .def("initAttributes", &mt::MaxTreeVolumeComputer<ValueType>::initAttributes)
-  .def("computeInitialValue", &mt::MaxTreeVolumeComputer<ValueType>::computeInitialValue)
-  .def("mergeToParent", &mt::MaxTreeVolumeComputer<ValueType>::mergeToParent)
-  .def("finaliseComputation", &mt::MaxTreeVolumeComputer<ValueType>::finaliseComputation);
+  .def("initAttributes", &mt::VolumeComputer<ValueType>::initAttributes)
+  .def("computeInitialValue", &mt::VolumeComputer<ValueType>::computeInitialValue)
+  .def("mergeToParent", &mt::VolumeComputer<ValueType>::mergeToParent)
+  .def("finaliseComputation", &mt::VolumeComputer<ValueType>::finaliseComputation);
 }
