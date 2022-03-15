@@ -1,8 +1,6 @@
 from conans import ConanFile, CMake, tools
 
 
-# File adapted from https://gitlab.lrde.epita.fr/olena/conan-pybind11/-/blob/master/conanfile.py
-
 class Pybind11(ConanFile):
     name = "pybind11"
     version = "2.2.4"
@@ -26,6 +24,27 @@ class Pybind11(ConanFile):
         git = tools.Git()
         git.clone("{}.git".format(self.homepage))
         git.checkout("v{}".format(self.version))
+
+    def get_cmake_config(self):
+        cmake = CMake(self)
+
+        if not self.options.build_tests:
+            cmake.definitions["BUILD_TESTING"] = "OFF"
+        else:
+            cmake.definitions["DOWNLOAD_CATCH"] = "ON"
+
+        cmake.configure()
+        return cmake
+
+    def build(self):
+        cmake = self.get_cmake_config()
+        cmake.build()
+
+        if self.options.build_tests:
+            # python tests trigger internal errors
+            # cmake.build(target="check")
+            # cmake.build(target="pytest")
+            cmake.build(target="cpptest")
 
     def package(self):
         cmake = self.get_cmake_config()
