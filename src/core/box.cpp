@@ -24,6 +24,50 @@ namespace morphotree
     return I32Point{0, 0};
   } 
 
+  ForwardBoxScan::Iterator ForwardBoxScan::begin()
+  {
+    std::unique_ptr<ForwardBoxScan> scanBox = 
+      std::make_unique<ForwardBoxScan>(box_);    
+    return Iterator{std::move(scanBox)};
+  }
+
+  ForwardBoxScan::Iterator ForwardBoxScan::end()
+  {
+    std::unique_ptr<ForwardBoxScan> scanBox = 
+      std::make_unique<ForwardBoxScan>(box_);
+    scanBox->curr_ = end_;
+    return Iterator{std::move(scanBox)};
+  }
+
+  // Box forward Iterator
+  ForwardBoxScan::Iterator::Iterator(
+    std::unique_ptr<ForwardBoxScan> scanBox)
+    :scanBox_{std::move(scanBox)}
+  {}
+
+  I32Point ForwardBoxScan::Iterator::operator*() const
+  {
+    return scanBox_->current();
+  }
+
+  ForwardBoxScan::Iterator &ForwardBoxScan::Iterator::operator++()
+  {
+    scanBox_->next();
+    return *this;
+  }
+
+  bool operator==(const ForwardBoxScan::Iterator &a, 
+    const ForwardBoxScan::Iterator &b)
+  {
+    return a.scanBox_->current() == b.scanBox_->current();
+  }
+
+  bool operator!=(const ForwardBoxScan::Iterator &a,
+    const ForwardBoxScan::Iterator &b)
+  {
+    return a.scanBox_->current() != b.scanBox_->current();
+  }
+
   // Backward Box Scan
   BackwardBoxScan::BackwardBoxScan(Box *box)
     :box_{box}, curr_{0}, end_{box_->numberOfPoints()}
@@ -31,7 +75,7 @@ namespace morphotree
 
   I32Point BackwardBoxScan::current() const
   {
-    return box_->indexToPoint(curr_);
+    return box_->indexToPoint(end_ - curr_ - 1);
   }
 
   I32Point BackwardBoxScan::next()
@@ -44,6 +88,49 @@ namespace morphotree
     return I32Point{0,0};
   }
 
+  BackwardBoxScan::Iterator BackwardBoxScan::begin()
+  {
+    std::unique_ptr<BackwardBoxScan> scanBox = 
+      std::make_unique<BackwardBoxScan>(box_);
+    return Iterator{std::move(scanBox)};
+  }
+
+  BackwardBoxScan::Iterator BackwardBoxScan::end()
+  {
+    std::unique_ptr<BackwardBoxScan> scanBox
+      = std::make_unique<BackwardBoxScan>(box_);
+    scanBox->curr_ = end_;
+    return Iterator{std::move(scanBox)};
+  }
+
+  // Backward scan box Iterator
+  BackwardBoxScan::Iterator::Iterator(
+    std::unique_ptr<BackwardBoxScan> scanBox)
+    : scanBox_{std::move(scanBox)}
+  {}
+
+  I32Point BackwardBoxScan::Iterator::operator*() const 
+  {
+    return scanBox_->current();
+  }
+
+  BackwardBoxScan::Iterator &BackwardBoxScan::Iterator::operator++()
+  {
+    scanBox_->next();
+    return *this;
+  }
+
+  bool operator==(const BackwardBoxScan::Iterator &a,
+    const BackwardBoxScan::Iterator &b)
+  {
+    return a.scanBox_->current() == b.scanBox_->current();
+  }
+
+  bool operator!=(const BackwardBoxScan::Iterator &a,
+    const BackwardBoxScan::Iterator &b)
+  {
+    return a.scanBox_->current() != b.scanBox_->current();
+  }
 
   // Box
   Box::Box()

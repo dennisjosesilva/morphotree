@@ -5,6 +5,8 @@
 
 #include <limits>
 #include <ostream>
+#include <memory>
+#include <iterator>
 
 namespace morphotree
 {
@@ -17,13 +19,34 @@ namespace morphotree
 
     I32Point current() const;
     I32Point next();
-    inline bool hasFinished() { return curr_ == end_; }
+    inline bool hasFinished() { return curr_ == end_+1; }    
 
   private:
     Box *box_;
     uint32 curr_;
     uint32 end_;
-  };
+
+  public:
+    class Iterator
+    {
+    public:
+      using iterator_category = std::forward_iterator_tag;
+      using value_type = I32Point;
+
+      Iterator(std::unique_ptr<ForwardBoxScan> scanBox);
+
+      I32Point operator*() const;
+      Iterator &operator++();
+
+      friend bool operator==(const Iterator &a, const Iterator &b);
+      friend bool operator!=(const Iterator &a, const Iterator &b);
+    private:
+      std::unique_ptr<ForwardBoxScan> scanBox_;
+    };  
+
+    Iterator begin();
+    Iterator end();
+  }; 
 
   class BackwardBoxScan
   {
@@ -32,12 +55,34 @@ namespace morphotree
 
     I32Point current() const;
     I32Point next();
-    bool hasFinished() { return curr_ == end_; };
+    bool hasFinished() { return curr_ == end_; };    
 
   private:
     Box *box_;
     uint32 curr_;
     uint32 end_;
+
+  public:
+    class Iterator
+    {
+    public:
+      using iterator_category = std::forward_iterator_tag;
+      using value_type = I32Point;
+
+      Iterator(std::unique_ptr<BackwardBoxScan> scanBox);
+
+      I32Point operator*() const;
+      Iterator &operator++();
+
+      friend bool operator==(const Iterator &a, const Iterator &b);
+      friend bool operator!=(const Iterator &a, const Iterator &b);
+    
+    private:
+      std::unique_ptr<BackwardBoxScan> scanBox_;
+    };
+
+    Iterator begin();
+    Iterator end();
   };
 
 
