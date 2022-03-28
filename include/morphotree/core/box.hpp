@@ -19,7 +19,7 @@ namespace morphotree
 
     I32Point current() const;
     I32Point next();
-    inline bool hasFinished() { return curr_ == end_+1; }    
+    inline bool hasFinished() { return curr_ == end_; }    
 
   private:
     Box *box_;
@@ -33,15 +33,18 @@ namespace morphotree
       using iterator_category = std::forward_iterator_tag;
       using value_type = I32Point;
 
-      Iterator(std::unique_ptr<ForwardBoxScan> scanBox);
+      Iterator(ForwardBoxScan *scanBox);
+      Iterator(const Iterator &i);
 
       I32Point operator*() const;
       Iterator &operator++();
 
       friend bool operator==(const Iterator &a, const Iterator &b);
       friend bool operator!=(const Iterator &a, const Iterator &b);
+
+      ~Iterator();
     private:
-      std::unique_ptr<ForwardBoxScan> scanBox_;
+      ForwardBoxScan* scanBox_;
     };  
 
     Iterator begin();
@@ -69,7 +72,8 @@ namespace morphotree
       using iterator_category = std::forward_iterator_tag;
       using value_type = I32Point;
 
-      Iterator(std::unique_ptr<BackwardBoxScan> scanBox);
+      Iterator(BackwardBoxScan* scanBox);
+      Iterator(const Iterator &i);
 
       I32Point operator*() const;
       Iterator &operator++();
@@ -77,8 +81,10 @@ namespace morphotree
       friend bool operator==(const Iterator &a, const Iterator &b);
       friend bool operator!=(const Iterator &a, const Iterator &b);
     
+      ~Iterator();
+
     private:
-      std::unique_ptr<BackwardBoxScan> scanBox_;
+      BackwardBoxScan* scanBox_;
     };
 
     Iterator begin();

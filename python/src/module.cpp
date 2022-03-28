@@ -2,6 +2,7 @@
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
+#include <exception>
 
 #include <sstream>
 
@@ -64,18 +65,46 @@ PYBIND11_MODULE(morphotreepy, m)
 
   bindFoundamentalTypePoints(m);
 
-  py::class_<mt::ForwardBoxScan>(m, "ForwardBoxScan")
+  py::class_<mt::ForwardBoxScan> fscan(m, "ForwardBoxScan");
+  fscan
     .def(py::init<mt::Box*>())
     .def_property_readonly("current", &mt::ForwardBoxScan::next)
     .def("next", &mt::ForwardBoxScan::next)
-    .def_property_readonly("hasFinished", &mt::ForwardBoxScan::hasFinished);
+    .def_property_readonly("hasFinished", &mt::ForwardBoxScan::hasFinished)
+    .def("__iter__", [](mt::ForwardBoxScan &scan) {
+      return scan;
+    })
+    .def("__next__", [](mt::ForwardBoxScan &scan) {
+      if (!scan.hasFinished()) {
+        mt::I32Point p = scan.current();
+        scan.next();
+        return p;
+      }
+      else {
+        throw py::stop_iteration();
+      }      
+    });
 
-  py::class_<mt::BackwardBoxScan>(m, "BackwardBoxScan")
+  py::class_<mt::BackwardBoxScan> bscan(m, "BackwardBoxScan");
+  bscan
     .def(py::init<mt::Box*>())
     .def_property_readonly("current", &mt::BackwardBoxScan::next)
     .def("next", &mt::BackwardBoxScan::next)
-    .def_property_readonly("hasFinished", &mt::BackwardBoxScan::hasFinished);
-  
+    .def_property_readonly("hasFinished", &mt::BackwardBoxScan::hasFinished)
+    .def("__iter__", [](mt::BackwardBoxScan &scan){
+      return scan;
+    })
+    .def("__next__", [](mt::BackwardBoxScan &scan){
+      if (!scan.hasFinished()) {
+        mt::I32Point p = scan.current();
+        scan.next();
+        return p;
+      }
+      else {
+        throw py::stop_iteration();
+      }
+    });
+   
   py::class_<mt::Box> boxClass = py::class_<mt::Box>(m, "Box")
     .def(py::init<mt::I32Point, mt::I32Point>(), py::arg("topleft"), py::arg("bottomright"))
     .def_static("fromCorners", &mt::Box::fromCorners, py::arg("topleft"), py::arg("bottomright"))

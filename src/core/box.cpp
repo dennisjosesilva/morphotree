@@ -26,24 +26,25 @@ namespace morphotree
 
   ForwardBoxScan::Iterator ForwardBoxScan::begin()
   {
-    std::unique_ptr<ForwardBoxScan> scanBox = 
-      std::make_unique<ForwardBoxScan>(box_);    
-    return Iterator{std::move(scanBox)};
+    return Iterator{new ForwardBoxScan{box_}};
   }
 
   ForwardBoxScan::Iterator ForwardBoxScan::end()
   {
-    std::unique_ptr<ForwardBoxScan> scanBox = 
-      std::make_unique<ForwardBoxScan>(box_);
+    ForwardBoxScan *scanBox = new ForwardBoxScan{box_};
     scanBox->curr_ = end_;
-    return Iterator{std::move(scanBox)};
+    return Iterator{scanBox};
   }
 
   // Box forward Iterator
-  ForwardBoxScan::Iterator::Iterator(
-    std::unique_ptr<ForwardBoxScan> scanBox)
-    :scanBox_{std::move(scanBox)}
+  ForwardBoxScan::Iterator::Iterator(ForwardBoxScan *scanBox)
+    :scanBox_{scanBox}
   {}
+
+  ForwardBoxScan::Iterator::Iterator(const Iterator &i)
+  {
+    scanBox_ = new ForwardBoxScan{i.scanBox_->box_};
+  }
 
   I32Point ForwardBoxScan::Iterator::operator*() const
   {
@@ -68,6 +69,12 @@ namespace morphotree
     return a.scanBox_->current() != b.scanBox_->current();
   }
 
+  ForwardBoxScan::Iterator::~Iterator()
+  {
+    delete scanBox_;
+    scanBox_ = nullptr;
+  }
+
   // Backward Box Scan
   BackwardBoxScan::BackwardBoxScan(Box *box)
     :box_{box}, curr_{0}, end_{box_->numberOfPoints()}
@@ -89,24 +96,26 @@ namespace morphotree
   }
 
   BackwardBoxScan::Iterator BackwardBoxScan::begin()
+  {    
+    return Iterator{new BackwardBoxScan{box_}};
+  }
+
+
+  BackwardBoxScan::Iterator::Iterator(const Iterator &i)
   {
-    std::unique_ptr<BackwardBoxScan> scanBox = 
-      std::make_unique<BackwardBoxScan>(box_);
-    return Iterator{std::move(scanBox)};
+    scanBox_ = new BackwardBoxScan{i.scanBox_->box_};
   }
 
   BackwardBoxScan::Iterator BackwardBoxScan::end()
   {
-    std::unique_ptr<BackwardBoxScan> scanBox
-      = std::make_unique<BackwardBoxScan>(box_);
+    BackwardBoxScan *scanBox = new BackwardBoxScan{box_};
     scanBox->curr_ = end_;
-    return Iterator{std::move(scanBox)};
+    return Iterator{scanBox};
   }
 
   // Backward scan box Iterator
-  BackwardBoxScan::Iterator::Iterator(
-    std::unique_ptr<BackwardBoxScan> scanBox)
-    : scanBox_{std::move(scanBox)}
+  BackwardBoxScan::Iterator::Iterator(BackwardBoxScan *scanBox)
+    : scanBox_{scanBox}
   {}
 
   I32Point BackwardBoxScan::Iterator::operator*() const 
@@ -120,6 +129,12 @@ namespace morphotree
     return *this;
   }
 
+  BackwardBoxScan::Iterator::~Iterator()
+  {
+    delete scanBox_;
+    scanBox_ = nullptr;
+  }
+
   bool operator==(const BackwardBoxScan::Iterator &a,
     const BackwardBoxScan::Iterator &b)
   {
@@ -131,6 +146,8 @@ namespace morphotree
   {
     return a.scanBox_->current() != b.scanBox_->current();
   }
+
+  
 
   // Box
   Box::Box()
