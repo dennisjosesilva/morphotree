@@ -20,4 +20,15 @@ namespace morphotree
     Box domain_;  
     std::array<I32Point, 8> offset_;
   };
+
+  class InfAdjacency8C : public Adjacency
+  {
+  public:
+    InfAdjacency8C(Box imgdomain);
+    std::vector<uint32> neighbours(uint32 v) const;
+  
+  protected:
+    Box domain_;
+    std::array<I32Point, 8> offset_;
+  };
 }

@@ -1,47 +1,60 @@
-#include "morphotree/core/box.hpp"
-#include "morphotree/tree/treeOfShapes/order_image.hpp"
-#include <iostream>
-#include <vector>
+#include "morphotree/attributes/countorExtraction.hpp"
+#include "morphotree/adjacency/adjacency4c.hpp"
+#include "morphotree/tree/ct_builder.hpp"
+
 #include "morphotree/core/io.hpp"
+
+
+namespace mt = morphotree;
 
 int main(int argc, char *argv[])
 {
-  using morphotree::Box;
-  using morphotree::I32Point;
-  using morphotree::UI32Point;
-  using morphotree::uint8;
-  using morphotree::OrderImageResult;
-  using morphotree::computeOrderImage;
-  using morphotree::KGrid;
-  using morphotree::printImageIntoConsole;
+  using mt::uint8;
+  using mt::uint32;
+  using MTree = mt::MorphologicalTree<uint8>;
+  using NodePtr = typename MTree::NodePtr;
+  using mt::InfAdjacency4C;
+  using mt::Adjacency4C;
+  using mt::Adjacency;
+  using mt::Box;
+  using mt::extractCountors;
+  using mt::reconstructContourImage;
+  using mt::UI32Point;
+  using mt::buildMaxTree;
+  using mt::printImageIntoConsoleWithCast;
 
-  // Box box = Box::fromCorners(I32Point{-1,-1}, I32Point{1,1});
-
-  Box domain = Box::fromSize(UI32Point{4,4});
   std::vector<uint8> f = {
-    3, 3, 3, 3,
-    3, 0, 8, 3,
-    3, 9, 4, 3,
-    3, 3, 3, 3
+    0, 0, 0, 0, 0, 0, 0,
+    0, 4, 4, 4, 7, 7, 7,
+    0, 7, 7, 4, 7, 4, 7,
+    0, 7, 4, 4, 7, 4, 7,
+    0, 4, 4, 4, 7, 4, 7,
+    0, 7, 7, 4, 7, 7, 7,
+    0, 0, 0, 0, 0, 0, 0,
   };
 
-  KGrid<uint8> F{domain, f};
-  OrderImageResult<uint8> r = 
-    computeOrderImage(domain, f, F);
+  Box domain = Box::fromSize(UI32Point{7,7});
+  std::shared_ptr<Adjacency> adj 
+    = std::make_shared<Adjacency4C>(domain);
+  MTree tree = buildMaxTree(f, adj);
 
-  printImageIntoConsole(r.orderImg, r.domain);
+  std::vector<std::set<uint32>> countors = 
+    extractCountors(
+      domain, 
+      f, 
+      std::make_shared<InfAdjacency4C>(domain), 
+      tree);
 
-  // std::cout << " ============= FORWARD SCAN ===============\n";
-  // for (const I32Point &p : box.forwardBoxScan())
-  // {
-  //   std::cout << p <<std::endl;
-  // }
-
-  // std::cout << " ============= BACKWARD SCAN ===============\n";
-  // for (const I32Point &p : box.backwardBoxScan())
-  // {
-  //   std::cout << p <<std::endl;
-  // }
+  tree.traverseByLevel([&domain, &countors](NodePtr node) {
+    std::vector<bool> bimg = node->reconstruct(domain);
+    std::cout << "\nbimage:\n";
+    printImageIntoConsoleWithCast<int>(bimg, domain);
+    std::cout << "\ncontours:\n";
+    std::vector<bool> bcontour = 
+      reconstructContourImage(countors[node->id()], domain);
+    printImageIntoConsoleWithCast<int>(bcontour, domain);
+    std::cout << "\n";
+  }); 
 
   return 0;
 }
