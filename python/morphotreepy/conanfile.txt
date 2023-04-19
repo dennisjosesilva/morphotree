@@ -1,9 +1,10 @@
 [requires]
-pybind11/2.2.4
-morphotree/0.0.1@dennisjosesilva/dev
+pybind11/2.10.1
+morphotree/0.0.1@
 
 [generators]
-cmake
+CMakeDeps
+CMakeToolchain
 
 [options]
-morphotree:shared=True
+morphotree/0.0.1:shared=True

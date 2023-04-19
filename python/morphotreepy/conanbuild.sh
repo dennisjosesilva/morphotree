@@ -1,0 +1,1 @@
+. "/mnt/HDD-Ubuntu/documents/phd/code/simple-morph-tree/python/morphotreepy/conanbuildenv-release-x86_64.sh"

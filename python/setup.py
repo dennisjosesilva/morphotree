@@ -36,10 +36,14 @@ class CMakeBuild(build_ext):
 
   def build_extension(self, ext):
     extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
-    cmake_args = ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + extdir, "-DTYPE_EXECUTABLE=" + sys.executable]
+    cmake_args = ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + extdir, 
+                  "-DTYPE_EXECUTABLE=" + sys.executable]
+
+    self.extdir = extdir
 
     cfg = "Debug" if self.debug else "Release"
     build_args = ["--config", cfg]
+    
 
     if platform.system() == "Windows":
       cmake_args += ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir)]
@@ -47,7 +51,7 @@ class CMakeBuild(build_ext):
         cmake_args += ["-A", "x64"]
       build_args += ["--", "/m"]
     else:
-      cmake_args += ["-DCMAKE_BUILD_TYPE=" + cfg]
+      cmake_args += ["-DCMAKE_BUILD_TYPE=" + cfg]      
       build_args += ["--", "-j2"]
 
     env = os.environ.copy()
@@ -56,16 +60,22 @@ class CMakeBuild(build_ext):
     if not os.path.exists(self.build_temp):
       os.makedirs(self.build_temp)
 
-    subprocess.check_call(["conan", "install", ext.sourcedir + "/" + ext.name], cwd=self.build_temp, env=env)
+    cmake_args += [f"-DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake"]
+    subprocess.check_call(["conan", 
+                           "install", 
+                           ext.sourcedir + "/" + ext.name,
+                           f"--output-folder=.",
+                           "--build=missing"], 
+                           cwd=self.build_temp, env=env)
     subprocess.check_call(["cmake", ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
     subprocess.check_call(["cmake", "--build", "."] + build_args, cwd=self.build_temp)
     self.move_output(ext)
     print()
 
   def move_output(self, ext):
-    build_temp = Path(self.build_temp + "/lib").resolve()
+    extdir = Path(self.extdir).resolve()
     dest_path = Path(self.get_ext_fullpath(ext.name)).resolve()
-    source_path = build_temp / self.get_ext_filename(ext.name)
+    source_path = extdir / self.get_ext_filename(ext.name)
     dest_directory = dest_path.parents[0]
     dest_directory.mkdir(parents=True, exist_ok=True)
     self.copy_file(source_path, dest_path)

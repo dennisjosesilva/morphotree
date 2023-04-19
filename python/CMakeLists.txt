@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.20)
 
 project(morphotreepy)
 
@@ -12,10 +12,8 @@ set(CMAKE_CXX_STANDARD 14 CACHE STRING "C++ version selection")  # or 11, 14, 17
 set(CMAKE_CXX_STANDARD_REQUIRED ON)  # optional, ensure standard is supported
 set(CMAKE_CXX_EXTENSIONS OFF)  # optional, keep compiler extensionsn off
 
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
-
 find_package(pybind11 REQUIRED)
+find_package(morphotree REQUIRED)
 
 #if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 #    add_compile_options(-Wnoc++11-narrowing )
@@ -46,4 +44,6 @@ pybind11_add_module(morphotreepy
   src/filtering/progressiveDifferenceAttributeFilterpy.cpp
   src/module.cpp)
   
-target_link_libraries(morphotreepy PRIVATE ${CONAN_LIBS})
+target_link_libraries(morphotreepy PRIVATE 
+  morphotree::morphotree
+  pybind11::pybind11)
