@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
       = std::make_shared<Adjacency4C>(domain);
     MTree tree = buildMaxTree(f, adj);
 
-    std::vector<std::set<uint32>> countors = 
+    std::vector<std::unordered_set<uint32>> countors = 
       extractCountors(
         domain, 
         f, 
@@ -69,13 +69,14 @@ int main(int argc, char *argv[])
     uint8 *data = stbi_load(argv[1], &nx, &ny, &nc, 0);
 
     std::vector<uint8> f(data, data + (nx*ny));
-    Box domain = Box::fromSize(UI32Point{nx, ny});
+    Box domain = Box::fromSize(UI32Point{static_cast<uint32>(nx), 
+      static_cast<uint32>(ny)});
 
     std::shared_ptr<Adjacency> adj 
       = std::make_shared<Adjacency4C>(domain);
     MTree tree = buildMaxTree(f, adj);
 
-    std::vector<std::set<uint32>> countors = 
+    std::vector<std::unordered_set<uint32>> countors = 
       extractCountors(
         domain, 
         f, 
@@ -84,7 +85,7 @@ int main(int argc, char *argv[])
 
     NodePtr node = tree.smallComponent(domain.pointToIndex(
       I32Point{nx/2, ny/2}));
-    const std::set<uint32> &contour = countors[node->id()];
+    const std::unordered_set<uint32> &contour = countors[node->id()];
     std::vector<uint8> output(domain.numberOfPoints(), 255);
     for (uint32 pidx : node->reconstruct())
       output[pidx] = 0;
