@@ -1,9 +1,0 @@
-[requires]
-morphotree/0.0.1@
-
-[generators]
-CMakeDeps
-CMakeToolchain
-
-[options]
-morphotree/0.0.1:shared=True

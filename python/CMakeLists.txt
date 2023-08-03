@@ -8,7 +8,12 @@ set(CMAKE_CXX_STANDARD 14 CACHE STRING "C++ version selection")  # or 11, 14, 17
 set(CMAKE_CXX_STANDARD_REQUIRED ON)  # optional, ensure standard is supported
 set(CMAKE_CXX_EXTENSIONS OFF)  # optional, keep compiler extensionsn off
 
+
+
 add_subdirectory(pybind11)
+
+# Setting up morphotree library
+list(APPEND CMAKE_PREFIX_PATH ../)
 find_package(morphotree REQUIRED)
 
 #if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -40,5 +45,4 @@ pybind11_add_module(morphotreepy
   src/filtering/progressiveDifferenceAttributeFilterpy.cpp
   src/module.cpp)
   
-target_link_libraries(morphotreepy PRIVATE 
-  morphotree::morphotree)
+target_link_libraries(morphotreepy PRIVATE morphotree)
