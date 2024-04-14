@@ -34,7 +34,7 @@ namespace morphotree
   {
     std::vector<uint32> idx(v.size());
     std::iota(idx.begin(), idx.end(), 0);
-    std::sort(idx.begin(), idx.end(), [&v, cmp](uint i1, uint i2) {
+    std::sort(idx.begin(), idx.end(), [&v, cmp](uint32 i1, uint32 i2) {
       return cmp(v[i1], v[i2]);
     });
     return idx;
@@ -82,7 +82,7 @@ namespace morphotree
   }
 
   template<typename T>
-  std::vector<uint> sortIncreasing(const std::vector<T> &v)
+  std::vector<uint32> sortIncreasing(const std::vector<T> &v)
   {
     if (isLowSizeType<T>())
       return countingSortIncreasing(v);

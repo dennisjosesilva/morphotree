@@ -30,11 +30,11 @@ namespace morphotree
     using ValueType = WeightType; 
     using NodePtr = std::shared_ptr<MTNode<WeightType>>;
 
-    MTNode(uint id=0);
+    MTNode(uint32 id=0);
 
-    inline uint id() const { return id_; }
-    inline uint& id() { return id_; }
-    inline void id(uint newid) { id_ = newid; } 
+    inline uint32 id() const { return id_; }
+    inline uint32& id() { return id_; }
+    inline void id(uint32 newid) { id_ = newid; } 
 
     inline uint32 representative() const { return representative_; }
     inline uint32& representative() { return representative_; } 
@@ -92,8 +92,8 @@ namespace morphotree
     MorphologicalTree(MorphoTreeType type, std::vector<uint32> &&cmap, std::vector<NodePtr> &&nodes);
     MorphologicalTree(MorphoTreeType type);
 
-    const NodePtr node(uint id) const { return nodes_[id]; }
-    NodePtr node(uint id) { return nodes_[id]; }
+    const NodePtr node(uint32 id) const { return nodes_[id]; }
+    NodePtr node(uint32 id) { return nodes_[id]; }
     
     const NodePtr root() const { return root_; }
     NodePtr root() { return root_; }
@@ -157,7 +157,7 @@ namespace morphotree
   const uint32 MorphologicalTree<WeightType>::UndefinedIndex = std::numeric_limits<uint32>::max();
 
   template<class WeightType>
-  MTNode<WeightType>::MTNode(uint id)
+  MTNode<WeightType>::MTNode(uint32 id)
     :id_{id}, level_{0}, parent_{nullptr}
   {}
 

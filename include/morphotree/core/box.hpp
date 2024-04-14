@@ -127,8 +127,8 @@ namespace morphotree
       uint32 pointToLocalIndex(const I32Point &p) const;
       inline uint32 pointToLocalIndex(int32 x, int32 y) const { return pointToLocalIndex(I32Point{x, y}); }
       I32Point localIndexToPoint(uint32 idx) const;
-      uint32 localIndexToIndex(uint lidx) const;
-      uint32 indexToLocalIndex(uint idx) const;
+      uint32 localIndexToIndex(uint32 lidx) const;
+      uint32 indexToLocalIndex(uint32 idx) const;
 
       I32Point at(uint32 idx) const { return localIndexToPoint(idx); }
       I32Point operator[](uint32 idx) const { return localIndexToPoint(idx); }

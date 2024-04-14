@@ -306,7 +306,7 @@ namespace morphotree
     return superDomain_.pointToIndex(localIndexToPoint(lidx));
   }
 
-  uint32 Box::SubBox::indexToLocalIndex(uint idx) const
+  uint32 Box::SubBox::indexToLocalIndex(uint32 idx) const
   {
     if (!contains(indexToPoint(idx)))
       return UndefinedIndex;
