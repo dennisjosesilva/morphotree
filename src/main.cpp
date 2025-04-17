@@ -4,13 +4,6 @@
 
 #include "morphotree/core/io.hpp"
 
-
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
-
 namespace mt = morphotree;
 
 int main(int argc, char *argv[])
@@ -30,7 +23,8 @@ int main(int argc, char *argv[])
   using mt::buildMaxTree;
   using mt::printImageIntoConsoleWithCast;
 
-  if (argc < 2) {
+  if (argc < 2) 
+  {
     std::vector<uint8> f = {
       0, 0, 0, 0, 0, 0, 0,
       0, 4, 4, 4, 7, 7, 7,
@@ -46,54 +40,14 @@ int main(int argc, char *argv[])
       = std::make_shared<Adjacency4C>(domain);
     MTree tree = buildMaxTree(f, adj);
 
-    std::vector<std::unordered_set<uint32>> countors = 
-      extractCountors(
-        domain, 
-        f, 
-        std::make_shared<InfAdjacency4C>(domain), 
-        tree);
-
-    tree.traverseByLevel([&domain, &countors](NodePtr node) {
-      std::vector<bool> bimg = node->reconstruct(domain);
-      std::cout << "\nbimage:\n";
-      printImageIntoConsoleWithCast<int>(bimg, domain);
-      std::cout << "\ncontours:\n";
-      std::vector<bool> bcontour = 
-        reconstructContourImage(countors[node->id()], domain);
-      printImageIntoConsoleWithCast<int>(bcontour, domain);
+    for (NodePtr node : tree.nodesByLevel()) {
+      std::cout << "node.id= " << node->id() << "\n";
+      std::vector<bool> nodeImg = node->reconstruct(domain);
+      printImageIntoConsoleWithCast<int>(nodeImg, domain);
       std::cout << "\n";
-    });
+    }
   }
-  else {
-    int nx, ny, nc;
-    uint8 *data = stbi_load(argv[1], &nx, &ny, &nc, 0);
 
-    std::vector<uint8> f(data, data + (nx*ny));
-    Box domain = Box::fromSize(UI32Point{static_cast<uint32>(nx), 
-      static_cast<uint32>(ny)});
-
-    std::shared_ptr<Adjacency> adj 
-      = std::make_shared<Adjacency4C>(domain);
-    MTree tree = buildMaxTree(f, adj);
-
-    std::vector<std::unordered_set<uint32>> countors = 
-      extractCountors(
-        domain, 
-        f, 
-        std::make_shared<InfAdjacency4C>(domain), 
-        tree);
-
-    NodePtr node = tree.smallComponent(domain.pointToIndex(
-      I32Point{nx/2, ny/2}));
-    const std::unordered_set<uint32> &contour = countors[node->id()];
-    std::vector<uint8> output(domain.numberOfPoints(), 255);
-    for (uint32 pidx : node->reconstruct())
-      output[pidx] = 0;
-    for (uint32 pidx : contour)
-      output[pidx] = 128;
-
-    stbi_write_png("out.png", nx, ny, 1, output.data(), 0);
-  } 
   
   return 0;
 }

@@ -28,7 +28,7 @@ namespace morphotree
   {
   public:
     using ValueType = WeightType; 
-    using NodePtr = std::shared_ptr<MTNode<WeightType>>;
+    using NodePtr = std::shared_ptr<MTNode<WeightType>>;    
 
     MTNode(uint32 id=0);
 
@@ -80,10 +80,78 @@ namespace morphotree
     std::list<NodePtr> children_;
   };
 
+
+
   template<class WeightType>
   class MorphologicalTree
   {
   public:
+
+    // ====================================================
+    // Traversal iterators
+    // ====================================================
+    class Traversal
+    {
+    public:
+      class Iterator 
+      {
+      public:
+        using MTree = MorphologicalTree<WeightType>;
+        using NodePtr = typename MTNode<WeightType>::NodePtr;
+
+        Iterator(const MorphologicalTree<WeightType> &tree, uint32 index); 
+
+        inline const NodePtr operator*() const;
+        Iterator& operator++();
+        bool operator==(const Iterator &it) const;
+        bool operator!=(const Iterator &it) const { return !(*this == it); }
+
+      private:
+        uint32 index_;
+        const MorphologicalTree<WeightType> &tree_;
+      };
+      
+    public:
+      Traversal(const MorphologicalTree<WeightType> &tree);
+      Iterator begin() const;
+      Iterator end() const;
+
+    private:
+      const MorphologicalTree<WeightType> &tree_;      
+    };
+
+
+    class TraversalByLevel
+    {
+    public:
+      class Iterator
+      {
+      public:
+        using MTree = MorphologicalTree<WeightType>;
+        using NodePtr = typename MTNode<WeightType>::NodePtr;
+
+        Iterator(std::queue<NodePtr> *queue);
+
+        inline const NodePtr operator*() const;
+        Iterator &operator++();
+        bool operator==(const Iterator &it) const;
+        bool operator!=(const Iterator &it) const { return !(*this == it); }
+
+      private:
+        std::queue<NodePtr> *queue_;
+      };
+
+      TraversalByLevel(const MorphologicalTree<WeightType> &tree);
+      Iterator begin();
+      Iterator end();
+    
+    private:
+      const MorphologicalTree<WeightType>& tree_;
+      std::queue<typename Iterator::NodePtr> queue_;
+      std::queue<typename Iterator::NodePtr> emptyQueue_;
+    };
+
+
     using NodePtr = typename MTNode<WeightType>::NodePtr; 
     using NodeType = MTNode<WeightType>;
     using TreeWeightType = WeightType;
@@ -110,6 +178,8 @@ namespace morphotree
 
     void tranverse(std::function<void(const NodePtr node)> visit) const;
 
+    Traversal nodes() const { return Traversal{*this}; }
+
     std::vector<WeightType> reconstructImage() const;
     std::vector<WeightType> reconstructImage(std::function<bool(const NodePtr)> keep) const;
 
@@ -120,6 +190,8 @@ namespace morphotree
     void traverseByLevel(std::function<void(const NodePtr)> visit) const;
 
     void traverseByLevel(std::function<void(NodePtr)> visit);
+
+    TraversalByLevel nodesByLevel() const { return TraversalByLevel{*this}; }
 
     inline NodePtr smallComponent(uint32 idx) { return nodes_[cmap_[idx]]; }    
     inline const NodePtr smallComponent(uint32 idx) const { return nodes_[cmap_[idx]]; }
@@ -153,6 +225,112 @@ namespace morphotree
 
 
   // ======================[ IMPLEMENTATION ] ===================================================================
+
+  // ===================[ TRAVERSAL ITERATORS ] =================================================================
+  template<typename WeightType>
+  MorphologicalTree<WeightType>::Traversal::Traversal(const MorphologicalTree<WeightType> &tree)
+    :tree_{tree}
+  {}
+
+  template<typename WeightType>
+  typename MorphologicalTree<WeightType>::Traversal::Iterator 
+    MorphologicalTree<WeightType>::Traversal::begin() const 
+  { 
+    return Iterator{tree_, 0}; 
+  }
+
+  template<typename WeightType>
+  typename MorphologicalTree<WeightType>::Traversal::Iterator 
+    MorphologicalTree<WeightType>::Traversal::end() const 
+  { 
+    return Iterator{tree_, tree_.numberOfNodes()}; 
+  }
+
+  template<typename WeightType>
+  MorphologicalTree<WeightType>::Traversal::Iterator::Iterator(
+    const MorphologicalTree<WeightType> &tree, uint32 index)
+    : tree_{tree}, index_{index}
+  {} 
+
+  template<typename WeightType>
+  const typename MorphologicalTree<WeightType>::NodePtr 
+    MorphologicalTree<WeightType>::Traversal::Iterator::operator*() const 
+  { 
+    return tree_.nodes_[tree_.numberOfNodes() - index_ - 1];
+  }
+
+  template<typename WeightType>
+  typename MorphologicalTree<WeightType>::Traversal::Iterator& 
+  MorphologicalTree<WeightType>::Traversal::Iterator::operator++() {
+    ++index_;
+    return *this;
+  }
+        
+  template<typename WeightType>
+  bool MorphologicalTree<WeightType>::Traversal::Iterator::operator==(
+    const Iterator &it) const 
+  {
+    return index_ == it.index_;
+  }
+
+  // Traversal per level
+  template<typename WeightType>
+  MorphologicalTree<WeightType>::TraversalByLevel::TraversalByLevel(
+    const MorphologicalTree<WeightType> &tree) : tree_{tree}
+  {}
+
+  template<typename WeightType>
+  typename MorphologicalTree<WeightType>::TraversalByLevel::Iterator 
+    MorphologicalTree<WeightType>::TraversalByLevel::begin()
+  {
+    queue_ = std::queue<NodePtr>();
+    queue_.push(tree_.root());
+    return Iterator{&queue_};
+  }
+  
+  template<typename WeightType>
+  typename MorphologicalTree<WeightType>::TraversalByLevel::Iterator
+    MorphologicalTree<WeightType>::TraversalByLevel::end()
+  {        
+    return Iterator{&emptyQueue_};
+  }
+
+  template<typename WeightType>
+  MorphologicalTree<WeightType>::TraversalByLevel::Iterator::Iterator(
+    std::queue<NodePtr> *queue) : queue_{queue}
+  {}
+  
+  template<typename WeightType>
+  const typename MorphologicalTree<WeightType>::TraversalByLevel::Iterator::NodePtr 
+    MorphologicalTree<WeightType>::TraversalByLevel::Iterator::operator*() const
+  {
+    return queue_->front();
+  }
+
+
+  template<typename WeightType>
+  typename MorphologicalTree<WeightType>::TraversalByLevel::Iterator& 
+    MorphologicalTree<WeightType>::TraversalByLevel::Iterator::operator++()
+  {
+    NodePtr node = queue_->front();
+    for (NodePtr c : node->children()) {
+      queue_->push(c);
+    }
+    queue_->pop();
+    return *this;
+  }
+
+  template<typename WeightType>  
+  bool MorphologicalTree<WeightType>::TraversalByLevel::Iterator::operator==(
+    const Iterator &it) const
+  {
+    uint32 myId = queue_->empty() ? MTree::UndefinedIndex : queue_->front()->id();
+    uint32 otherId = it.queue_->empty() ? MTree::UndefinedIndex : it.queue_->front()->id();
+
+    return myId == otherId;
+  }
+
+  // ================= [ TREE ] ================================================================================
   template<typename WeightType>
   const uint32 MorphologicalTree<WeightType>::UndefinedIndex = std::numeric_limits<uint32>::max();
 
