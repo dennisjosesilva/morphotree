@@ -176,9 +176,9 @@ namespace morphotree
 
     uint32 numberOfCNPs() const { return cmap_.size(); }
 
-    void tranverse(std::function<void(const NodePtr node)> visit) const;
-
+    // Iterators
     Traversal nodes() const { return Traversal{*this}; }
+    TraversalByLevel nodesByLevel() const { return TraversalByLevel{*this}; }
 
     std::vector<WeightType> reconstructImage() const;
     std::vector<WeightType> reconstructImage(std::function<bool(const NodePtr)> keep) const;
@@ -186,12 +186,6 @@ namespace morphotree
     void idirectFilter(std::function<bool(const NodePtr)> keep);
 
     MorphologicalTree<WeightType> directFilter(std::function<bool(const NodePtr)> keep) const;    
-
-    void traverseByLevel(std::function<void(const NodePtr)> visit) const;
-
-    void traverseByLevel(std::function<void(NodePtr)> visit);
-
-    TraversalByLevel nodesByLevel() const { return TraversalByLevel{*this}; }
 
     inline NodePtr smallComponent(uint32 idx) { return nodes_[cmap_[idx]]; }    
     inline const NodePtr smallComponent(uint32 idx) const { return nodes_[cmap_[idx]]; }
@@ -527,14 +521,6 @@ namespace morphotree
     return bin;
   }
   
-  template<class WeightType>
-  void MorphologicalTree<WeightType>::tranverse(std::function<void(const NodePtr node)> visit) const 
-  {
-    for(uint32 i = 1; i <= nodes_.size(); i++)  {
-      visit(nodes_[nodes_.size() - i]);
-    }
-  }
-
   template<class WeightType> 
   MorphologicalTree<WeightType> buildMaxTree(const std::vector<WeightType> &f,
     std::shared_ptr<Adjacency> adj)
@@ -572,23 +558,23 @@ namespace morphotree
     vector<vector<uint32>> up(numberOfNodes(), vector<uint32>());
     vector<WeightType> f(cmap_.size(), 0);
 
-    tranverse([&up, &keep, &f](const NodePtr node){
+    for (NodePtr node : nodes()) {
       if (keep(node)) {
-        for (uint32 pidx : node->cnps()) 
+        for (uint32 pidx : nodes->cnp())
           f[pidx] = node->level();
         
-        for (uint32 pidx : up[node->id()]) 
-          f[pidx] = node->level();          
+        for (uint32 pdix : up[node->id()])
+          f[pdix] = node->level();  
       }
-      else {        
+      else {
         const vector<uint32> &cnps = node->cnps();
-        const vector<uint32> &upCnps = up[node->id()];
+        const vector<uint32> &upCNPs = up[node->id()];
         vector<uint32> &upParent = up[node->parent()->id()];
 
         upParent.insert(upParent.end(), cnps.begin(), cnps.end());
-        upParent.insert(upParent.end(), upCnps.begin(), upCnps.end());
+        upParent.insert(upParent.end(), upCNPs.begin(), upCNPs.end());
       }
-    });
+    }
 
     return f;
   }
@@ -644,47 +630,14 @@ namespace morphotree
     tree.nodes_.clear();
     tree.nodes_.resize(prevNumOfNodes - numRemovedNodes);
     uint32 newId = 0;
-    tree.traverseByLevel([&tree, &newId](NodePtr n) {
+
+    for (NodePtr n : nodesByLevel()) {
       n->id(newId);
       tree.nodes_[newId] = n;
       for (uint32 idx : n->cnps()) {
         tree.cmap_[idx] = newId;
       }
       newId++;
-    }); 
-  }
-
-  template<typename WeightType>
-  void MorphologicalTree<WeightType>::traverseByLevel(std::function<void(const NodePtr)> visit) const
-  {
-    std::queue<NodePtr> queue;
-    queue.push(root());
-
-    while (!queue.empty())
-    {
-      NodePtr node = queue.front();
-      queue.pop();
-      visit(node);
-      for (NodePtr c : node->children()) {
-        queue.push(c);
-      }
-    }
-  }
-
-  template<typename WeightType>
-  void MorphologicalTree<WeightType>::traverseByLevel(std::function<void(NodePtr)> visit)
-  {
-    std::queue<NodePtr> queue;
-    queue.push(root());
-
-    while (!queue.empty())
-    {
-      NodePtr node = queue.front();
-      queue.pop();
-      visit(node);
-      for (NodePtr c : node->children()) {
-        queue.push(c);
-      }
     }
   }
 
@@ -721,7 +674,7 @@ namespace morphotree
       ctree.nodes_.push_back(node->copy());
     }
 
-    traverseByLevel([this, &ctree](NodePtr node) {
+    for (NodePtr node : nodesByLevel()) {
       NodePtr cnode = ctree.nodes_[node->id()];
       
       if (node->parent() != nullptr) {
@@ -729,7 +682,8 @@ namespace morphotree
         cnode->parent(cparent);
         cparent->appendChild(cnode); 
       }
-    });
+    }
+
     ctree.root_ = ctree.nodes_[0];
     return ctree;
   }

@@ -33,14 +33,13 @@ namespace morphotree
 
     std::vector<AttrType> attr = initAttributes(tree);
 
-    tree.tranverse([this, &attr](NodePtr node){
+    for (NodePtr node : tree.nodes()) {
       this->computeInitialValue(attr, node);
       if (node->parent() != nullptr)
         this->mergeToParent(attr, node, node->parent());
 
       this->finaliseComputation(attr, node);
-    });
-
+    }
     return attr;
   }
 }

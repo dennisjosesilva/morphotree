@@ -4,6 +4,8 @@
 
 #include "morphotree/core/io.hpp"
 
+#include "morphotree/attributes/areaComputer.hpp"
+
 namespace mt = morphotree;
 
 int main(int argc, char *argv[])
@@ -22,6 +24,7 @@ int main(int argc, char *argv[])
   using mt::I32Point;
   using mt::buildMaxTree;
   using mt::printImageIntoConsoleWithCast;
+  using mt::AreaComputer;
 
   if (argc < 2) 
   {
@@ -39,6 +42,9 @@ int main(int argc, char *argv[])
     std::shared_ptr<Adjacency> adj 
       = std::make_shared<Adjacency4C>(domain);
     MTree tree = buildMaxTree(f, adj);
+
+    std::vector<AreaComputer<uint8>::AttrType> area = 
+      std::make_unique<AreaComputer<uint8>>()->computeAttribute(tree);
 
     for (NodePtr node : tree.nodesByLevel()) {
       std::cout << "node.id= " << node->id() << "\n";
