@@ -8,26 +8,24 @@ set(BUILD_APPS OFF CACHE BOOL "Enable application buildings")
 set(BUILD_TESTS OFF CACHE BOOL "Enable test building")
 
 include_directories(include)
-include_directories(stb)
 
 find_package(OpenMP REQUIRED)
 
+set(PROJECT_MAIN "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
 file(GLOB_RECURSE PROJECT_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
-
-
 list(REMOVE_ITEM PROJECT_SOURCE ${PROJECT_MAIN})
 
 add_library(morphotreelib STATIC ${PROJECT_SOURCE})
 target_link_libraries(morphotreelib OpenMP::OpenMP_CXX)
 
-
-if(BUILD_APPS)
-    set(PROJECT_MAIN "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
+if(BUILD_APPS)    
     add_executable(morphotreemain ${PROJECT_MAIN})
     target_link_libraries(morphotreemain morphotreelib)
 endif()
 
 if(BUILD_TESTS)
+    include(CTest)
+
     include(FetchContent)
 
     FetchContent_Declare(
@@ -38,8 +36,13 @@ if(BUILD_TESTS)
 
     FetchContent_MakeAvailable(Catch2)
 
-    add_executable(tests tests/src/Test_Box.cpp)
-    target_link_libraries(tests PRIVATE morphotreelib Catch2::Catch2WithMain)
+    file(GLOB_RECURSE TESTS_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/tests/src/*.cpp")
+
+    add_executable(tests ${TESTS_SOURCE})
+    target_link_libraries(tests PUBLIC morphotreelib Catch2::Catch2WithMain)
+    
+    include(Catch)
+    catch_discover_tests(tests)
 endif()
 
 
